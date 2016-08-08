@@ -17,4 +17,4 @@ mobtool: mobtool.o
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o game
+	rm -f *.o game mobtool romtool 
