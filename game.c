@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <stdint.h>
 #include <time.h>
+#include "allocator.h"
 #include "game.h"
 #include "oop.h"
 
@@ -198,16 +199,22 @@ int game_init(void *self) {
   struct dirent *d_entry;
   uint8_t i, north_id, south_id, east_id, west_id, monster_id;
 
+  /* register the persistent mallocs with our allocation cleanup handler */
+  alloc_register(rooms);
+  alloc_register(monsters);
+
   /* initialize the memory for the both file record structures and the runtime structures */
   /* we explicitly start from 0 here even though 0 is reserved, since we check against it */
   for (i = 0; i < MAX_MOBS; i++) {
     monster_frecs[i] = calloc(1, sizeof(monster_frec));
     monsters[i]      = calloc(1, sizeof(monster));
+    alloc_register(monsters[i]);
   }
 
   for (i = 0; i < MAX_ROOMS; i++) {
     room_frecs[i] = calloc(1, sizeof(room_frec));
     rooms[i]      = calloc(i, sizeof(room));
+    alloc_register(rooms[i]);
   }
 
   /* scan the mobs dir and read all entries */
@@ -256,6 +263,12 @@ int game_init(void *self) {
     monsters[i]->health     = monster_frecs[i]->health;
     monsters[i]->attack_dmg = monster_frecs[i]->attack_dmg;
     monsters[i]->defense    = monster_frecs[i]->defense;
+
+    alloc_register(monsters[i]->name);
+    alloc_register(monsters[i]->name2);
+    alloc_register(monsters[i]->attack_str);
+    alloc_register(monsters[i]->defend_str);
+    alloc_register(monsters[i]->desc_str);
   }
 
   /* similar process for rooms, read all entries */
@@ -298,6 +311,8 @@ int game_init(void *self) {
     rooms[i] = NEW(room, room_frecs[i]->name);
     rooms[i]->name        = strdup(room_frecs[i]->name);
     rooms[i]->description = strdup(room_frecs[i]->description);
+    alloc_register(rooms[i]->name);
+    alloc_register(rooms[i]->description);
   }
 
   /* once all records are in place, we can match up mappings and truly check if they are valid */
@@ -475,6 +490,8 @@ int process(game *game) {
 }
 
 int main(int argc, char *argv[]) {
+  alloc_register_cb();
+
   game *gameobj = NEW(game, "");
 
   srand(time(NULL));
