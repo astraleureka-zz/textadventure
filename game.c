@@ -198,6 +198,19 @@ int game_init(void *self) {
   struct dirent *d_entry;
   uint8_t i, north_id, south_id, east_id, west_id, monster_id;
 
+  /* initialize the memory for the both file record structures and the runtime structures */
+  /* we explicitly start from 0 here even though 0 is reserved, since we check against it */
+  for (i = 0; i < MAX_MOBS; i++) {
+    monster_frecs[i] = calloc(1, sizeof(monster_frec));
+    monsters[i]      = calloc(1, sizeof(monster));
+  }
+
+  for (i = 0; i < MAX_ROOMS; i++) {
+    room_frecs[i] = calloc(1, sizeof(room_frec));
+    rooms[i]      = calloc(i, sizeof(room));
+  }
+
+  /* scan the mobs dir and read all entries */
   mob_dh = opendir("mobs");
   if (mob_dh == NULL) {
     perror("opendir mobs");
@@ -224,7 +237,6 @@ int game_init(void *self) {
 
     if (monster_frec_read.monster_id == 0) continue; /* monster id 0 means no monster assigned */
 
-    monster_frecs[monster_frec_read.monster_id]  = malloc(sizeof(monster_frec));
     *monster_frecs[monster_frec_read.monster_id] = monster_frec_read;
 
     fclose(fh);
@@ -232,6 +244,7 @@ int game_init(void *self) {
 
   closedir(mob_dh);
 
+  /* copy file records to runtime struct */
   for (i = 1; i < MAX_MOBS; i++) {
     if (! monster_frecs[i]) continue;
     monsters[i]             = NEW(monster, monster_frecs[i]->name);
@@ -245,6 +258,7 @@ int game_init(void *self) {
     monsters[i]->defense    = monster_frecs[i]->defense;
   }
 
+  /* similar process for rooms, read all entries */
   room_dh = opendir("rooms");
   if (room_dh == NULL) {
     perror("opendir room_dh");
@@ -271,7 +285,6 @@ int game_init(void *self) {
 
     if (room_frec_read.room_id == 0) continue; /* 0 means no room, reserved */
 
-    room_frecs[room_frec_read.room_id]  = malloc(sizeof(room_frec));
     *room_frecs[room_frec_read.room_id] = room_frec_read;
 
     fclose(fh);
@@ -279,6 +292,7 @@ int game_init(void *self) {
 
   closedir(room_dh);
 
+  /* first create all records, don't check mappings yet */
   for (i = 1; i < MAX_ROOMS; i++) {
     if (! room_frecs[i]) continue;
     rooms[i] = NEW(room, room_frecs[i]->name);
@@ -286,6 +300,7 @@ int game_init(void *self) {
     rooms[i]->description = strdup(room_frecs[i]->description);
   }
 
+  /* once all records are in place, we can match up mappings and truly check if they are valid */
   for (i = 1; i < MAX_ROOMS; i++) {
     if (! rooms[i]) continue;
     north_id = room_frecs[i]->north_id;
@@ -293,28 +308,28 @@ int game_init(void *self) {
     east_id  = room_frecs[i]->east_id;
     west_id  = room_frecs[i]->west_id;
 
-    if (rooms[north_id]) {
+    if (north_id && rooms[north_id]) {
       if (room_frecs[north_id]->south_id != i) {
         printf("room %d north_id %d does not correspond room %d south_id %d\n", i, north_id, north_id, room_frecs[north_id]->south_id);
         exit(0);
       }
       rooms[i]->north = rooms[north_id];
     }
-    if (rooms[south_id]) {
+    if (south_id && rooms[south_id]) {
       if (room_frecs[south_id]->north_id != i) {
         printf("room %d south_id %d does not correspond room %d north_id %d\n", i, south_id, south_id, room_frecs[south_id]->north_id);
         exit(0);
       }
       rooms[i]->south = rooms[south_id];
     }
-    if (rooms[east_id]) {
+    if (east_id && rooms[east_id]) {
       if (room_frecs[east_id]->west_id != i) {
         printf("room %d east_id %d does not correspond room %d west_id %d\n", 1, east_id, east_id, room_frecs[east_id]->west_id);
         exit(0);
       }
       rooms[i]->east = rooms[east_id];
     }
-    if (rooms[west_id]) {
+    if (west_id && rooms[west_id]) {
       if (room_frecs[west_id]->east_id != i) {
         printf("room %d west_id %d does not correspond room %d east_id %d\n", 1, west_id, west_id, room_frecs[west_id]->east_id);
         exit(0);
@@ -333,6 +348,22 @@ int game_init(void *self) {
     }
   }
 
+  /* clean up the frecs allocations */
+  for (i = 0; i < MAX_ROOMS; i++) {
+    free(room_frecs[i]);
+  }
+
+  free(room_frecs);
+
+  for (i = 0; i < MAX_MOBS; i++) {
+    free(monster_frecs[i]);
+  }
+
+  free(monster_frecs);
+
+  free(path_tmp);
+
+  /* finally bootstrap the game object */
   player *playerobj       = NEW(player, "player");
   playerobj->room_current = rooms[1];
   game->start             = rooms[1];
