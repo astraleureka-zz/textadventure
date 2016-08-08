@@ -4,11 +4,27 @@
 #include <stdlib.h>
 #include "oop.h"
 
+static void **object_cleanup;
+static size_t object_cleanup_count;
+uint8_t object_cleanup_registered = 0;
+
 void object_destroy(void *self) {
   object *obj = self;
 
-  if (obj)
+  if (obj) {
+    free(obj->class);
     free(obj);
+  }
+}
+
+void object_do_cleanup(void) {
+  size_t i;
+
+  for (i = 0; i < object_cleanup_count; i++) {
+    object_destroy(object_cleanup[i]);
+  }
+
+  free(object_cleanup);
 }
 
 void object_describe(void *self) {
@@ -54,6 +70,13 @@ void *object_new(size_t size, object proto, char *class) {
 
   object *new = calloc(1, size);
   *new = proto; /* assign base object */
+
+  object_cleanup = realloc(object_cleanup, sizeof(void *) * (object_cleanup_count + 1));
+  object_cleanup[object_cleanup_count++] = new;
+  if (! object_cleanup_registered) {
+    object_cleanup_registered = 1;
+    atexit(object_do_cleanup);
+  }
 
   new->class = strdup(class);
 
