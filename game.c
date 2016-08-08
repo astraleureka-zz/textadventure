@@ -239,11 +239,10 @@ int game_init(void *self) {
     monsters[i]->name2      = strdup(monster_frecs[i]->name2);
     monsters[i]->attack_str = strdup(monster_frecs[i]->attack_str);
     monsters[i]->defend_str = strdup(monster_frecs[i]->defend_str);
-    monsters[i]->desc_str = strdup(monster_frecs[i]->desc_str);
+    monsters[i]->desc_str   = strdup(monster_frecs[i]->desc_str);
     monsters[i]->health     = monster_frecs[i]->health;
     monsters[i]->attack_dmg = monster_frecs[i]->attack_dmg;
     monsters[i]->defense    = monster_frecs[i]->defense;
-    printf("%p -> %p\n",  &monsters[i]->defense, &monster_frecs[i]->defense);
   }
 
   room_dh = opendir("rooms");
@@ -293,7 +292,7 @@ int game_init(void *self) {
     south_id = room_frecs[i]->south_id;
     east_id  = room_frecs[i]->east_id;
     west_id  = room_frecs[i]->west_id;
-    printf("r=%d n=%d s=%d e=%d w=%d\n", i, north_id, south_id, east_id, west_id);
+
     if (rooms[north_id]) {
       if (room_frecs[north_id]->south_id != i) {
         printf("room %d north_id %d does not correspond room %d south_id %d\n", i, north_id, north_id, room_frecs[north_id]->south_id);
