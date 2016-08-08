@@ -1,4 +1,6 @@
 #!/bin/sh
+rm -rf rooms/
+mkdir rooms/
 #                         room_id  mob_id   north   south    east    west	name					description
 ./roomtool rooms/origin		1	0	2	0	0	0	"the spawn room" 			"There doesn't seem to be anything here."
 ./roomtool rooms/first		2	1	4	1	0	3	"the first room" 			"This room is as drab and unoriginal as where you started."
