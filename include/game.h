@@ -3,10 +3,15 @@
 
 #define MAX_NAMELEN 31
 #define MAX_STRLEN 255
+#define FALSE 0
+#define TRUE !FALSE
+
+typedef unsigned int boolean_t;
 
 #include <stdint.h>
 #include "oop.h"
 #include "allocator.h"
+#include "item.h"
 #include "world.h"
 #include "mob.h"
 #include "player.h"

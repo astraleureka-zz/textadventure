@@ -32,6 +32,11 @@ object player_proto = {
   .move_action = player_move
 };
 
+object item_proto = {
+  .init     = item_init,
+  .describe = item_describe
+};
+
 /* Used for both monster and player attacks */
 uint8_t damage_calculate(uint8_t atk, uint8_t def) {
   uint8_t atk_base = (atk + ((rand() % atk) * 3 / 2));

@@ -1,7 +1,7 @@
 CC?=gcc
 CFLAGS+=-Wall -g3 -Iinclude/
 LDFLAGS+=
-GAME_OBJS=src/allocator.o src/oop.o src/game.o src/world.o src/mob.o src/player.o 
+GAME_OBJS=src/allocator.o src/oop.o src/game.o src/world.o src/mob.o src/player.o src/item.o
 
 all: game roomtool mobtool
 
