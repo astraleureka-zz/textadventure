@@ -8,7 +8,29 @@
 #include <time.h>
 #include "allocator.h"
 #include "game.h"
+#include "world.h"
+#include "mob.h"
+#include "player.h"
 #include "oop.h"
+
+object monster_proto = {
+  .init        = monster_init,
+  .take_action = monster_attack,
+  .recv_action = monster_attack_receive,
+  .describe    = monster_describe
+};
+
+object room_proto = {
+  .init     = room_init,
+  .describe = room_describe
+};
+
+object player_proto = {
+  .init = player_init,
+  .take_action = player_attack,
+  .recv_action = player_attack_receive,
+  .move_action = player_move
+};
 
 /* Used for both monster and player attacks */
 uint8_t damage_calculate(uint8_t atk, uint8_t def) {
@@ -24,166 +46,6 @@ uint8_t damage_calculate(uint8_t atk, uint8_t def) {
 #endif
   return damage;
 }
-
-int monster_init(void *self) {
-  return 1;
-}
-
-uint8_t monster_attack(void *self, void *target) {
-  monster *monster = self;
-  player *player   = target;
-
-  uint8_t damage = damage_calculate(monster->attack_dmg, player->defense);
-  printf("%s %s! You take %d damage.\n", monster->name2, monster->attack_str, damage);
-
-  return player->_(recv_action)(player, damage);
-}
-
-int monster_attack_receive(void *self, uint8_t damage) {
-  monster *monster = self;
-
-  if (damage >= monster->health)
-    return 1;
-
-  monster->health -= damage;
-  return 0;
-}
-
-void monster_describe(void *self) {
-  monster *monster = self;
-
-  printf("%s\n", monster->desc_str);
-}
-
-void monster_check(monster *monster) {
-  printf("Enemy HP: %3d    ATK: %3d  DEF: %3d\n", monster->health, monster->attack_dmg, monster->defense);
-}
-
-object monster_proto = {
-  .init        = monster_init,
-  .take_action = monster_attack,
-  .recv_action = monster_attack_receive,
-  .describe    = monster_describe
-};
-
-int room_init(void *self) {
-  return 1;
-}
-
-void room_describe(void *self) {
-  room *room = self;
-
-  printf("You look around %s. %s\n", room->name, room->description);
-
-  if (room->monster) {
-    if (room->monster->health > 0) {
-      printf("You spot %s just off in the distance.\n", room->monster->name);
-      room->monster->_(describe)(room->monster);
-      monster_check(room->monster);
-      return; /* they can't leave the room */
-    }
-    else {
-      printf("You see %s corpse resting in the middle of the room.\n", room->monster->name);
-    }
-  }
-
-  printf("You can move in these directions: ");
-  if (room->north) printf("north ");
-  if (room->south) printf("south ");
-  if (room->east) printf("east ");
-  if (room->west) printf("west ");
-  printf("\n");
-}
-
-object room_proto = {
-  .init     = room_init,
-  .describe = room_describe
-};
-
-int player_init(void *self) {
-  player *player     = self;
-  player->health     = 25 + (rand() % 17);
-  player->attack_dmg = 10 + (rand() % 5);
-  player->defense    = 6 + (rand() % 7);
-  return 1;
-}
-
-uint8_t player_attack(void *self, void *target) {
-  player *player   = self;
-  monster *monster = target;
-
-  uint8_t damage = damage_calculate(player->attack_dmg, monster->defense);
-  printf("You attack %s! It takes %d damage.\n", monster->name2, damage);
-
-  if (monster->_(recv_action)(monster, damage)) {
-    printf("You have slain %s!\n", monster->name2);
-    monster->health = 0;
-
-    return 1;
-  }
-
-  return 0;
-}
-
-int player_attack_receive(void *self, uint8_t damage) {
-  player *player = self;
-
-  if (damage >= player->health) {
-    printf("You have died!\n");
-    exit(0);
-  }
-
-  player->health -= damage;
-  return 0;
-}
-
-void player_move(void *self, direction dir) {
-  player *player = self;
-  room *current  = player->room_current, *next = NULL;
-  monster *monster = current->monster;
-
-  if (monster && monster->health > 0) {
-    printf("You try to sneak past %s, but it notices you!\n", monster->name2);
-    monster_attack(monster, player);
-    return;
-  }
-
-  if (dir == NORTH && current->north) {
-    printf("You move north.\n");
-    next = current->north;
-  }
-  else if (dir == SOUTH && current->south) {
-    printf("You move south.\n");
-    next = current->south;
-  }
-  else if (dir == EAST && current->east) {
-    printf("You move east.\n");
-    next = current->east;
-  }
-  else if (dir == WEST && current->west) {
-    printf("You move west.\n");
-    next = current->west;
-  }
-  else {
-    printf("You can't go in that direction.\n");
-  }
-
-  if (next) {
-    next->_(describe)(next);
-    player->room_current = next;
-  }
-}
-
-void player_check(player *player) {
-  printf(" Your HP: %3d    ATK: %3d  DEF: %3d\n", player->health, player->attack_dmg, player->defense);
-}
-
-object player_proto = {
-  .init = player_init,
-  .take_action = player_attack,
-  .recv_action = player_attack_receive,
-  .move_action = player_move
-};
 
 int game_init(void *self) {
   game *game                   = self;

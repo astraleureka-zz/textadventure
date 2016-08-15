@@ -1,0 +1,24 @@
+#ifndef _PLAYER_H
+#define _PLAYER_H 1
+
+#include <stdint.h>
+#include "oop.h"
+
+/* Player definitions */
+typedef struct {
+  object proto;
+
+  room *room_current;
+
+  uint8_t health;
+  uint8_t attack_dmg;
+  uint8_t defense;
+} player;
+
+int player_init(void *self);
+uint8_t player_attack(void *self, void *target);
+int player_attack_receive(void *self, uint8_t damage);
+void player_move(void *self, direction dir);
+void player_check(player *player);
+
+#endif
