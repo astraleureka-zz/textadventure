@@ -19,3 +19,6 @@ mobtool: mobtool.o
 
 clean:
 	rm -f *.o game mobtool romtool 
+
+superclean: clean
+	rm -f *~
