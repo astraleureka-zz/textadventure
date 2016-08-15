@@ -1,24 +1,24 @@
 CC?=gcc
-CFLAGS+=-Wall -g3
+CFLAGS+=-Wall -g3 -Iinclude/
 LDFLAGS+=
-GAME_OBJS=allocator.o oop.o game.o world.o mob.o player.o 
+GAME_OBJS=src/allocator.o src/oop.o src/game.o src/world.o src/mob.o src/player.o 
 
 all: game roomtool mobtool
 
 game: $(GAME_OBJS)
 	$(CC) $(LDFLAGS) $(GAME_OBJS) -o game
 
-roomtool: roomtool.o
-	$(CC) $(LDFLAGS) roomtool.o -o roomtool
+roomtool: src/roomtool.o
+	$(CC) $(LDFLAGS) $< -o $@
 
-mobtool: mobtool.o
-	$(CC) $(LDFLAGS) mobtool.o -o mobtool
+mobtool: src/mobtool.o
+	$(CC) $(LDFLAGS) $< -o $@
 
-.c.o:
+*.c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o game mobtool roomtool 
+	rm -f src/*.o game mobtool roomtool 
 
 superclean: clean
-	rm -f *~
+	rm -f include/*~ src/*~
