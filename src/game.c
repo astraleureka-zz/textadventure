@@ -64,7 +64,8 @@ int game_init(void *self) {
   DIR *room_dh, *mob_dh;
   FILE *fh;
   struct dirent *d_entry;
-  uint8_t i, north_id, south_id, east_id, west_id, monster_id;
+  uint16_t i;
+  uint8_t north_id, south_id, east_id, west_id, monster_id;
 
   /* register the persistent mallocs with our allocation cleanup handler */
   alloc_register(rooms);

@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "oop.h"
 
-#define MAX_MOBS 255
+#define MAX_MOBS 256
 
 /* Monster definitions */
 struct monster {

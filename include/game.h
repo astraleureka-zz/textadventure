@@ -1,8 +1,8 @@
 #ifndef _GAME_H
 #define _GAME_H 1
 
-#define MAX_NAMELEN 31
-#define MAX_STRLEN 255
+#define MAX_NAMELEN 32
+#define MAX_STRLEN 256
 #define FALSE 0
 #define TRUE !FALSE
 

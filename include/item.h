@@ -5,14 +5,12 @@
 #include "oop.h"
 #include "game.h"
 
-#define MAX_ITEMS 255
+#define MAX_ITEMS 256
 
 /* Item definitions */
 struct item {
   object proto;
 
-  char *name;
-  char *description;
   struct flags {
     boolean_t can_use:1;
     boolean_t can_eat:1;
@@ -22,6 +20,12 @@ struct item {
     int :26;
     boolean_t reserved:1;
   } flags;
+  uint8_t health;
+  uint8_t attack;
+  uint8_t defense;
+  uint8_t reserved[7];
+  char *name;
+  char *description;
 };
 
 typedef struct item item;
