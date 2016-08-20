@@ -16,7 +16,7 @@ uint8_t monster_attack(void *self, void *target) {
   monster *monster = self;
   player *player   = target;
 
-  uint8_t damage = damage_calculate(monster->attack_dmg, player->defense);
+  uint8_t damage = damage_calculate(monster->strength, player->defense);
   printf("%s %s! You take %d damage.\n", monster->name2, monster->attack_str, damage);
 
   return player->_(recv_action)(player, damage);
@@ -39,5 +39,5 @@ void monster_describe(void *self) {
 }
 
 void monster_check(monster *monster) {
-  printf("Enemy HP: %3d    ATK: %3d  DEF: %3d\n", monster->health, monster->attack_dmg, monster->defense);
+  printf("Enemy HP: %3d    ATK: %3d  DEF: %3d\n", monster->health, monster->strength, monster->defense);
 }

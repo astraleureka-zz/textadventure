@@ -11,7 +11,7 @@
 int player_init(void *self) {
   player *player     = self;
   player->health     = 25 + (rand() % 17);
-  player->attack_dmg = 10 + (rand() % 5);
+  player->strength   = 10 + (rand() % 5);
   player->defense    = 6 + (rand() % 7);
   return 1;
 }
@@ -20,7 +20,7 @@ uint8_t player_attack(void *self, void *target) {
   player *player   = self;
   monster *monster = target;
 
-  uint8_t damage = damage_calculate(player->attack_dmg, monster->defense);
+  uint8_t damage = damage_calculate(player->strength, monster->defense);
   printf("You attack %s! It takes %d damage.\n", monster->name2, damage);
 
   if (monster->_(recv_action)(monster, damage)) {
@@ -83,5 +83,5 @@ void player_move(void *self, direction dir) {
 }
 
 void player_check(player *player) {
-  printf(" Your HP: %3d    ATK: %3d  DEF: %3d\n", player->health, player->attack_dmg, player->defense);
+  printf(" Your HP: %3d    ATK: %3d  DEF: %3d\n", player->health, player->strength, player->defense);
 }

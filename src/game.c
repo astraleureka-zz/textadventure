@@ -110,6 +110,9 @@ int game_init(void *self) {
     }
     sprintf(path_tmp, "items/%s", d_entry->d_name);
     fh = fopen(path_tmp, "r");
+#ifdef DEBUG
+    printf("fopen(%s, 'r') = %d\n", path_tmp, fh);
+#endif
     if (fh == NULL) {
       sprintf(path_tmp, "fopen %s", path_tmp);
       perror(path_tmp);
@@ -162,6 +165,9 @@ int game_init(void *self) {
     }
     sprintf(path_tmp, "mobs/%s", d_entry->d_name);
     fh = fopen(path_tmp, "r");
+#ifdef DEBUG
+    printf("fopen(%s, 'r') = %d\n", path_tmp, fh);
+#endif
     if (fh == NULL) {
       sprintf(path_tmp, "fopen %s", path_tmp);
       perror(path_tmp);
@@ -184,15 +190,29 @@ int game_init(void *self) {
   /* copy file records to runtime struct */
   for (i = 1; i < MAX_MOBS; i++) {
     if (! monster_frecs[i]) continue;
-    monsters[i]             = NEW(monster, monster_frecs[i]->name);
-    monsters[i]->name       = strdup(monster_frecs[i]->name);
-    monsters[i]->name2      = strdup(monster_frecs[i]->name2);
-    monsters[i]->attack_str = strdup(monster_frecs[i]->attack_str);
-    monsters[i]->defend_str = strdup(monster_frecs[i]->defend_str);
-    monsters[i]->desc_str   = strdup(monster_frecs[i]->desc_str);
-    monsters[i]->health     = monster_frecs[i]->health;
-    monsters[i]->attack_dmg = monster_frecs[i]->attack_dmg;
-    monsters[i]->defense    = monster_frecs[i]->defense;
+    monsters[i]               = NEW(monster, monster_frecs[i]->name);
+    monsters[i]->name         = strdup(monster_frecs[i]->name);
+    monsters[i]->name2        = strdup(monster_frecs[i]->name2);
+    monsters[i]->attack_str   = strdup(monster_frecs[i]->attack_str);
+    monsters[i]->defend_str   = strdup(monster_frecs[i]->defend_str);
+    monsters[i]->desc_str     = strdup(monster_frecs[i]->desc_str);
+    monsters[i]->health       = monster_frecs[i]->health;
+    monsters[i]->skill        = monster_frecs[i]->skill;
+    monsters[i]->strength     = monster_frecs[i]->strength;
+    monsters[i]->defense      = monster_frecs[i]->defense;
+    monsters[i]->celerity     = monster_frecs[i]->celerity;
+    monsters[i]->intelligence = monster_frecs[i]->intelligence;
+
+    if (monster_frecs[i]->item_id) {
+      if (! items[ monster_frecs[i]->item_id ]) {
+        printf("mob %d has bad item_id %d\n", i, monster_frecs[i]->item_id);
+        exit(0);
+      }
+
+      monsters[i]->item_held = malloc(sizeof(item));
+      memcpy(monsters[i]->item_held, items[ monster_frecs[i]->item_id ], sizeof(item));
+      alloc_register(monsters[i]->item_held);
+    }
 
     alloc_register(monsters[i]->name);
     alloc_register(monsters[i]->name2);
@@ -216,6 +236,9 @@ int game_init(void *self) {
     }
     sprintf(path_tmp, "rooms/%s", d_entry->d_name);
     fh = fopen(path_tmp, "r");
+#ifdef DEBUG
+    printf("fopen(%s, 'r') = %d\n", path_tmp, fh);
+#endif
     if (fh == NULL) {
       sprintf(path_tmp, "fopen %s", path_tmp);
       perror(path_tmp);

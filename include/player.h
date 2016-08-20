@@ -11,8 +11,11 @@ typedef struct {
   room *room_current;
 
   uint8_t health;
-  uint8_t attack_dmg;
+  uint8_t skill;
+  uint8_t strength;
   uint8_t defense;
+  uint8_t celerity;
+  uint8_t intelligence;
 } player;
 
 int player_init(void *self);
