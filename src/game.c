@@ -285,8 +285,11 @@ int game_init(void *self) {
     monster_id = room_frecs[i]->monster_id;
     if (monster_id == 0) continue; /* monster id 0 means no monster */
 
-    if (monsters[monster_id])
-      rooms[i]->monster = monsters[monster_id];
+    if (monsters[monster_id]) {
+      rooms[i]->monster = malloc(sizeof(monster));
+      memcpy(rooms[i]->monster, monsters[monster_id], sizeof(monster));
+      alloc_register(rooms[i]->monster);
+    }
     else {
       printf("map %d monster_id %d does not exist\n", i, monster_id);
       exit(0);
