@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include <stdlib.h>
 
 #include "types.h"
@@ -29,6 +30,8 @@ void object_move_action(void *self, direction dir) {
 }
 
 void *object_new(size_t size, object proto, char *class) {
+  object *new;
+
   if (! proto.init)
     proto.init = object_init;
 
@@ -44,7 +47,7 @@ void *object_new(size_t size, object proto, char *class) {
   if (! proto.move_action)
     proto.move_action = object_move_action;
 
-  object *new = calloc(1, size);
+  assert(new = calloc(1, size));
   alloc_register(new);
   *new = proto; /* assign base object */
 

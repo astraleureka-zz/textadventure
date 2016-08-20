@@ -17,6 +17,7 @@
 #include "combat.h"
 #include "oop.h"
 
+/* object prototype / function pointer definitions */
 object monster_proto = {
   .init        = monster_init,
   .take_action = combat_generic,
@@ -50,6 +51,7 @@ int game_init(void *self) {
   monster_frec **monster_frecs = malloc(sizeof(monster_frec *) * MAX_MOBS);
   item_frec **item_frecs       = malloc(sizeof(item_frec *) * MAX_ITEMS);
   char *path_tmp               = malloc(256);
+  player *playerobj            = NULL;
   room_frec room_frec_read;
   monster_frec monster_frec_read;
   item_frec item_frec_read;
@@ -69,29 +71,32 @@ int game_init(void *self) {
   for (i = 0; i < MAX_MOBS; i++) {
     monster_frecs[i] = calloc(1, sizeof(monster_frec));
     monsters[i]      = calloc(1, sizeof(monster));
+    assert(NULL != monster_frecs[i]);
     alloc_register(monsters[i]);
   }
 
   for (i = 0; i < MAX_ROOMS; i++) {
     room_frecs[i] = calloc(1, sizeof(room_frec));
     rooms[i]      = calloc(i, sizeof(room));
+    assert(NULL != room_frecs[i]);
     alloc_register(rooms[i]);
   }
 
   for (i = 0; i < MAX_ITEMS; i++) {
     item_frecs[i] = calloc(1, sizeof(item_frec));
     items[i]      = calloc(i, sizeof(item));
+    assert(NULL != item_frecs[i]);
     alloc_register(items[i]);
   }
 
   /* copy item records to runtime structs */
   item_dh = opendir("items");
-  if (item_dh == NULL) {
+  if (NULL == item_dh) {
     perror("opendir items");
     exit(0);
   }
 
-  while ((d_entry = readdir(item_dh)) != NULL) {
+  while (NULL != (d_entry = readdir(item_dh))) {
     if (*d_entry->d_name == '.') continue;
     if (strlen(d_entry->d_name) > 249) {
       printf("filename too long \n");
@@ -102,7 +107,7 @@ int game_init(void *self) {
 #ifdef DEBUG
     printf("fopen(%s, 'r') = %d\n", path_tmp, fh);
 #endif
-    if (fh == NULL) {
+    if (NULL == fh) {
       sprintf(path_tmp, "fopen %s", path_tmp);
       perror(path_tmp);
       exit(0);
@@ -124,7 +129,7 @@ int game_init(void *self) {
   /* copy file records to runtime struct */
   for (i = 1; i < MAX_ITEMS; i++) {
     if (! item_frecs[i]) continue;
-    items[i]               = NEW(item, item_frecs[i]->name);
+    assert(items[i]        = NEW(item, item_frecs[i]->name));
     items[i]->name         = strdup(item_frecs[i]->name);
     items[i]->description  = strdup(item_frecs[i]->description);
     items[i]->health       = item_frecs[i]->health;
@@ -141,12 +146,12 @@ int game_init(void *self) {
 
   /* scan the mobs dir and read all entries */
   mob_dh = opendir("mobs");
-  if (mob_dh == NULL) {
+  if (NULL == mob_dh) {
     perror("opendir mobs");
     exit(0);
   }
 
-  while ((d_entry = readdir(mob_dh)) != NULL) {
+  while (NULL != (d_entry = readdir(mob_dh))) {
     if (*d_entry->d_name == '.') continue;
     if (strlen(d_entry->d_name) > 249) {
       printf("filename too long \n");
@@ -157,7 +162,7 @@ int game_init(void *self) {
 #ifdef DEBUG
     printf("fopen(%s, 'r') = %d\n", path_tmp, fh);
 #endif
-    if (fh == NULL) {
+    if (NULL == fh) {
       sprintf(path_tmp, "fopen %s", path_tmp);
       perror(path_tmp);
       exit(0);
@@ -179,7 +184,7 @@ int game_init(void *self) {
   /* copy file records to runtime struct */
   for (i = 1; i < MAX_MOBS; i++) {
     if (! monster_frecs[i]) continue;
-    monsters[i]               = NEW(monster, monster_frecs[i]->name);
+    assert(monsters[i]        = NEW(monster, monster_frecs[i]->name));
     monsters[i]->name         = strdup(monster_frecs[i]->name);
     monsters[i]->name2        = strdup(monster_frecs[i]->name2);
     monsters[i]->attack_str   = strdup(monster_frecs[i]->attack_str);
@@ -227,12 +232,12 @@ int game_init(void *self) {
 
   /* similar process for rooms, read all entries */
   room_dh = opendir("rooms");
-  if (room_dh == NULL) {
+  if (NULL == room_dh) {
     perror("opendir room_dh");
     exit(0);
   }
 
-  while ((d_entry = readdir(room_dh)) != NULL) {
+  while (NULL != (d_entry = readdir(room_dh))) {
     if (*d_entry->d_name == '.') continue;
     if (strlen(d_entry->d_name) > 249) {
       printf("filename too long \n");
@@ -243,7 +248,7 @@ int game_init(void *self) {
 #ifdef DEBUG
     printf("fopen(%s, 'r') = %d\n", path_tmp, fh);
 #endif
-    if (fh == NULL) {
+    if (NULL == fh) {
       sprintf(path_tmp, "fopen %s", path_tmp);
       perror(path_tmp);
       exit(0);
@@ -265,7 +270,7 @@ int game_init(void *self) {
   /* first create all records, don't check mappings yet */
   for (i = 1; i < MAX_ROOMS; i++) {
     if (! room_frecs[i]) continue;
-    rooms[i] = NEW(room, room_frecs[i]->name);
+    assert(rooms[i] = NEW(room, room_frecs[i]->name));
     rooms[i]->name        = strdup(room_frecs[i]->name);
     rooms[i]->description = strdup(room_frecs[i]->description);
     alloc_register(rooms[i]->name);
@@ -345,10 +350,10 @@ int game_init(void *self) {
   free(path_tmp);
 
   /* finally bootstrap the game object */
-  player *playerobj       = NEW(player, "player");
-  playerobj->room_current = rooms[1];
-  game->start             = rooms[1];
-  game->player            = playerobj;
+  assert(playerobj = NEW(player, "player"));
+  playerobj->room_current  = rooms[1];
+  game->start              = rooms[1];
+  game->player             = playerobj;
 
   return 1;
 }
@@ -452,8 +457,9 @@ int process(game *game) {
 
 int main(int argc, char *argv[]) {
   alloc_register_cb();
+  game *gameobj = NULL;
 
-  game *gameobj = NEW(game, "");
+  assert(gameobj = NEW(game, ""));
 
   srand(time(NULL));
 
