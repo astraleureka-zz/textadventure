@@ -103,7 +103,7 @@ int game_init(void *self) {
   }
 
   while ((d_entry = readdir(item_dh)) != NULL) {
-    if (! strcmp(d_entry->d_name, ".") || ! strcmp(d_entry->d_name, "..")) continue;
+    if (*d_entry->d_name == '.') continue;
     if (strlen(d_entry->d_name) > 249) {
       printf("filename too long \n");
       continue;
@@ -158,7 +158,7 @@ int game_init(void *self) {
   }
 
   while ((d_entry = readdir(mob_dh)) != NULL) {
-    if (! strcmp(d_entry->d_name, ".") || ! strcmp(d_entry->d_name, "..")) continue;
+    if (*d_entry->d_name == '.') continue;
     if (strlen(d_entry->d_name) > 249) {
       printf("filename too long \n");
       continue;
@@ -229,7 +229,7 @@ int game_init(void *self) {
   }
 
   while ((d_entry = readdir(room_dh)) != NULL) {
-    if (! strcmp(d_entry->d_name, ".") || ! strcmp(d_entry->d_name, "..")) continue;
+    if (*d_entry->d_name == '.') continue;
     if (strlen(d_entry->d_name) > 249) {
       printf("filename too long \n");
       continue;
