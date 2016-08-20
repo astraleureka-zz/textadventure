@@ -1,17 +1,7 @@
 #include <stdio.h>
-#include <string.h>
-#include <dirent.h>
-#include <assert.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <stdint.h>
-#include <time.h>
-#include "allocator.h"
+#include "types.h"
 #include "game.h"
-#include "world.h"
-#include "mob.h"
-#include "player.h"
-#include "oop.h"
 
 /*+++++++++++
   +++++++++++*/

@@ -1,15 +1,14 @@
 #ifndef _MOB_H
 #define _MOB_H 1
 
-#include <stdint.h>
-#include "oop.h"
-
-#define MAX_MOBS 256
+#include "types.h"
+#include "item.h"
 
 /* Monster definitions */
 struct monster {
   object proto;
 
+  gender gender;
   uint8_t health;
   uint8_t skill;
   uint8_t strength;
@@ -31,6 +30,7 @@ typedef struct monster monster;
 struct monster_frec {
   uint8_t monster_id;
 
+  uint8_t gender; /* 0 = NONE, 1 = FEMALE, 1 = MALE */
   uint8_t health;
   uint8_t skill;
   uint8_t strength;

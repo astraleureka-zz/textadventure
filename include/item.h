@@ -1,11 +1,8 @@
 #ifndef _ITEM_H
 #define _ITEM_H 1
 
-#include <stdint.h>
-#include "oop.h"
+#include "types.h"
 #include "game.h"
-
-#define MAX_ITEMS 256
 
 /* Item definitions */
 struct item_flags {

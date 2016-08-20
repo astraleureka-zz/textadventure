@@ -5,7 +5,7 @@ INCLUDES+=-Iinclude/
 DEFINES+=
 CFLAGS+=-Wall -g3 $(INCLUDES) $(DEFINES)
 LDFLAGS+=
-GAME_OBJS=src/allocator.o src/oop.o src/game.o src/world.o src/mob.o src/player.o src/item.o src/combat.o
+GAME_OBJS=src/allocator.o src/oop.o src/game.o src/world.o src/mob.o src/player.o src/item.o src/combat.o src/util.o
 
 all: game roomtool mobtool
 

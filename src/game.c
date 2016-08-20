@@ -7,7 +7,9 @@
 #include <stdint.h>
 #include <time.h>
 #include "allocator.h"
+#include "types.h"
 #include "game.h"
+#include "util.h"
 #include "world.h"
 #include "mob.h"
 #include "player.h"
@@ -188,6 +190,21 @@ int game_init(void *self) {
     monsters[i]->defense      = monster_frecs[i]->defense;
     monsters[i]->celerity     = monster_frecs[i]->celerity;
     monsters[i]->intelligence = monster_frecs[i]->intelligence;
+
+    switch (monster_frecs[i]->gender) {
+      case 0:
+        monsters[i]->gender = GENDER_NONE;
+        break;
+      case 1:
+        monsters[i]->gender = GENDER_FEMALE;
+        break;
+      case 2:
+        monsters[i]->gender = GENDER_MALE;
+        break;
+      default:
+        printf("monster %d bad gender %d\n", i, monster_frecs[i]->gender);
+        exit(0);
+    }
 
     if (monster_frecs[i]->item_id) {
       if (! items[ monster_frecs[i]->item_id ]) {
@@ -379,17 +396,12 @@ int process(game *game) {
       break;
 
     case 'a':
-      if (monster && monster->health > 0) {
-        if (rand() % 8 != 3) {
-          if (monster->health > 0) {
-            monster_will_attack = 1;
-          }
-        }
-        else
-          monster_will_defend = (monster->defense % 4);
-      }
-      else { /* no monster */
+      if (! monster) {
         printf("You swing your broadsword at the air. This makes you both look and feel rather foolish.\n");
+        return 1;
+      }
+      else if (monster->health == 0) {
+        printf("You poke %s with your broadsword. Unfortunately, %s lifeless corpse doesn't give much of a fight.\n", monster->name2, util_pronoun_get(monster->gender, U_PRONOUN_POSSESSIVE));
         return 1;
       }
 

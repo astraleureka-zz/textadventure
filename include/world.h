@@ -1,13 +1,9 @@
 #ifndef _WORLD_H
 #define _WORLD_H 1
 
-#include <stdint.h>
-#include "oop.h"
-#include "game.h"
+#include "types.h"
 #include "mob.h"
 #include "item.h"
-
-#define MAX_ROOMS 256
 
 /* Room definitions */
 struct room {

@@ -1,8 +1,7 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H 1
 
-#include <stdint.h>
-#include "oop.h"
+#include "types.h"
 
 /* Player definitions */
 typedef struct {

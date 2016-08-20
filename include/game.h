@@ -5,14 +5,12 @@
 #define MAX_STRLEN 256
 
 #include <stdint.h>
+#include "types.h"
 #include "oop.h"
-#include "allocator.h"
-#include "item.h"
 #include "world.h"
-#include "mob.h"
 #include "player.h"
 
-/* game definitions */
+/*+ core game object, holds reference to spawn point and player object +*/
 typedef struct {
   object proto;
 
