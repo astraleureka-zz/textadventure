@@ -53,5 +53,6 @@ int monster_init(void *self);
 int monster_attack_receive(void *self, uint8_t damage);
 void monster_describe(void *self);
 void monster_check(monster *monster);
+monster **monster_load(item** items);
 
 #endif

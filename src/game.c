@@ -18,32 +18,12 @@
 #include "oop.h"
 
 /* object prototype / function pointer definitions */
-/*+ monster class prototype +*/
-object monster_proto = {
-  .init        = monster_init,
-  .take_action = combat_generic,
-  .recv_action = monster_attack_receive,
-  .describe    = monster_describe
-};
-
-/*+ room class prototype +*/
-object room_proto = {
-  .init     = room_init,
-  .describe = room_describe
-};
-
 /*+ player class prototype +*/
 object player_proto = {
   .init = player_init,
   .take_action = combat_generic,
   .recv_action = player_attack_receive,
   .move_action = player_move
-};
-
-/*+ item class prototype +*/
-object item_proto = {
-  .init     = item_init,
-  .describe = item_describe
 };
 
 /*+ game class prototype +*/
@@ -56,193 +36,16 @@ int game_init(void *self) /*+ pointer to called object +*/
 /*+ returns 1 upon success, 0 upon failure +*/
 {
   game *game                   = self;
-  room **rooms                 = malloc(sizeof(room *) * MAX_ROOMS);
-  monster **monsters           = malloc(sizeof(monster *) * MAX_MOBS);
-  item **items                 = malloc(sizeof(item *) * MAX_ITEMS);
-  room_frec **room_frecs       = malloc(sizeof(room_frec *) * MAX_ROOMS);
-  monster_frec **monster_frecs = malloc(sizeof(monster_frec *) * MAX_MOBS);
-  item_frec **item_frecs       = malloc(sizeof(item_frec *) * MAX_ITEMS);
   player *playerobj            = NULL;
-  uint16_t i;
-  uint8_t north_id, south_id, east_id, west_id, monster_id;
+  room **rooms;
+  monster **monsters;
+  item **items;
 
-  /* register the persistent mallocs with our allocation cleanup handler */
-  alloc_register(items);
-  alloc_register(rooms);
-  alloc_register(monsters);
+  items    = item_load();
+  monsters = monster_load(items);
+  rooms    = room_load(monsters, items);
 
-  /* initialize the memory for the runtime structures */
-  /* we explicitly start from 0 here even though 0 is reserved, since we check against it */
-  for (i = 0; i < MAX_MOBS; i++) {
-    monster_frecs[i] = calloc(1, sizeof(monster_frec));
-    monsters[i]      = calloc(1, sizeof(monster));
-    alloc_register(monsters[i]);
-  }
-
-  for (i = 0; i < MAX_ROOMS; i++) {
-    room_frecs[i] = calloc(1, sizeof(room_frec));
-    rooms[i]      = calloc(i, sizeof(room));
-    alloc_register(rooms[i]);
-  }
-
-  for (i = 0; i < MAX_ITEMS; i++) {
-    item_frecs[i] = calloc(1, sizeof(item_frec));
-    items[i]      = calloc(i, sizeof(item));
-    alloc_register(items[i]);
-  }
-
-  util_frec_load("items", item_frecs, sizeof(item_frec));
-  util_frec_load("mobs",  monster_frecs, sizeof(monster_frec));
-  util_frec_load("rooms", room_frecs, sizeof(room_frec));
-
-  /* copy file records to runtime struct */
-  for (i = 1; i < MAX_ITEMS; i++) {
-    if (! item_frecs[i]->item_id) continue;
-    assert(items[i]        = NEW(item, item_frecs[i]->name));
-    items[i]->name         = strdup(item_frecs[i]->name);
-    items[i]->description  = strdup(item_frecs[i]->description);
-    items[i]->health       = item_frecs[i]->health;
-    items[i]->skill        = item_frecs[i]->skill;
-    items[i]->strength     = item_frecs[i]->strength;
-    items[i]->defense      = item_frecs[i]->defense;
-    items[i]->celerity     = item_frecs[i]->celerity;
-    items[i]->intelligence = item_frecs[i]->intelligence;
-    memcpy(&items[i]->flags, &item_frecs[i]->flags, sizeof(item_flags)); /* has no member pointers */
-
-    alloc_register(items[i]->name);
-    alloc_register(items[i]->description);
-  }
-
-  /* copy file records to runtime struct */
-  for (i = 1; i < MAX_MOBS; i++) {
-    if (! monster_frecs[i]->monster_id) continue;
-    assert(monsters[i]        = NEW(monster, monster_frecs[i]->name));
-    monsters[i]->name         = strdup(monster_frecs[i]->name);
-    monsters[i]->name2        = strdup(monster_frecs[i]->name2);
-    monsters[i]->attack_str   = strdup(monster_frecs[i]->attack_str);
-    monsters[i]->defend_str   = strdup(monster_frecs[i]->defend_str);
-    monsters[i]->desc_str     = strdup(monster_frecs[i]->desc_str);
-    monsters[i]->health       = monster_frecs[i]->health;
-    monsters[i]->skill        = monster_frecs[i]->skill;
-    monsters[i]->strength     = monster_frecs[i]->strength;
-    monsters[i]->defense      = monster_frecs[i]->defense;
-    monsters[i]->celerity     = monster_frecs[i]->celerity;
-    monsters[i]->intelligence = monster_frecs[i]->intelligence;
-
-    switch (monster_frecs[i]->gender) {
-      case 0:
-        monsters[i]->gender = GENDER_NONE;
-        break;
-      case 1:
-        monsters[i]->gender = GENDER_FEMALE;
-        break;
-      case 2:
-        monsters[i]->gender = GENDER_MALE;
-        break;
-      default:
-        printf("monster %d bad gender %d\n", i, monster_frecs[i]->gender);
-        exit(0);
-    }
-
-    if (monster_frecs[i]->item_id) {
-      if (! items[ monster_frecs[i]->item_id ]) {
-        printf("mob %d has bad item_id %d\n", i, monster_frecs[i]->item_id);
-        exit(0);
-      }
-
-      monsters[i]->item_held = malloc(sizeof(item));
-      memcpy(monsters[i]->item_held, items[ monster_frecs[i]->item_id ], sizeof(item));
-      alloc_register(monsters[i]->item_held);
-    }
-
-    alloc_register(monsters[i]->name);
-    alloc_register(monsters[i]->name2);
-    alloc_register(monsters[i]->attack_str);
-    alloc_register(monsters[i]->defend_str);
-    alloc_register(monsters[i]->desc_str);
-  }
-
-  /* first create all records, don't check mappings yet */
-  for (i = 1; i < MAX_ROOMS; i++) {
-    if (! room_frecs[i]->room_id) continue;
-    assert(rooms[i] = NEW(room, room_frecs[i]->name));
-    rooms[i]->name        = strdup(room_frecs[i]->name);
-    rooms[i]->description = strdup(room_frecs[i]->description);
-    alloc_register(rooms[i]->name);
-    alloc_register(rooms[i]->description);
-  }
-
-  /* once all records are in place, we can match up mappings and truly check if they are valid */
-  for (i = 1; i < MAX_ROOMS; i++) {
-    if (! rooms[i]) continue;
-    north_id = room_frecs[i]->north_id;
-    south_id = room_frecs[i]->south_id;
-    east_id  = room_frecs[i]->east_id;
-    west_id  = room_frecs[i]->west_id;
-
-    if (north_id && rooms[north_id]) {
-      if (room_frecs[north_id]->south_id != i) {
-        printf("room %d north_id %d does not correspond room %d south_id %d\n", i, north_id, north_id, room_frecs[north_id]->south_id);
-        exit(0);
-      }
-      rooms[i]->north = rooms[north_id];
-    }
-    if (south_id && rooms[south_id]) {
-      if (room_frecs[south_id]->north_id != i) {
-        printf("room %d south_id %d does not correspond room %d north_id %d\n", i, south_id, south_id, room_frecs[south_id]->north_id);
-        exit(0);
-      }
-      rooms[i]->south = rooms[south_id];
-    }
-    if (east_id && rooms[east_id]) {
-      if (room_frecs[east_id]->west_id != i) {
-        printf("room %d east_id %d does not correspond room %d west_id %d\n", 1, east_id, east_id, room_frecs[east_id]->west_id);
-        exit(0);
-      }
-      rooms[i]->east = rooms[east_id];
-    }
-    if (west_id && rooms[west_id]) {
-      if (room_frecs[west_id]->east_id != i) {
-        printf("room %d west_id %d does not correspond room %d east_id %d\n", 1, west_id, west_id, room_frecs[west_id]->east_id);
-        exit(0);
-      }
-      rooms[i]->west = rooms[west_id];
-    }
-
-    monster_id = room_frecs[i]->monster_id;
-    if (monster_id == 0) continue; /* monster id 0 means no monster */
-
-    if (monsters[monster_id]) {
-      rooms[i]->monster = malloc(sizeof(monster));
-      memcpy(rooms[i]->monster, monsters[monster_id], sizeof(monster));
-      alloc_register(rooms[i]->monster);
-    }
-    else {
-      printf("map %d monster_id %d does not exist\n", i, monster_id);
-      exit(0);
-    }
-  }
-
-  /* clean up the frecs allocations */
-  for (i = 0; i < MAX_ITEMS; i++) {
-    free(item_frecs[i]);
-  }
-
-  free(item_frecs);
-
-  for (i = 0; i < MAX_ROOMS; i++) {
-    free(room_frecs[i]);
-  }
-
-  free(room_frecs);
-
-  for (i = 0; i < MAX_MOBS; i++) {
-    free(monster_frecs[i]);
-  }
-
-  free(monster_frecs);
-
-  /* finally bootstrap the game object */
+  /* bootstrap the game object */
   assert(playerobj = NEW(player, "player"));
   playerobj->room_current  = rooms[1];
   game->start              = rooms[1];

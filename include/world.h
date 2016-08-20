@@ -40,5 +40,6 @@ typedef struct room_frec room_frec;
 
 int room_init(void *self);
 void room_describe(void *self);
+room** room_load(monster** monsters, item** items);
 
 #endif

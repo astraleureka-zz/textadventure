@@ -53,5 +53,6 @@ typedef struct item_frec item_frec;
 
 int item_init(void *self);
 void item_describe(void *self);
+item** item_load(void);
 
 #endif
