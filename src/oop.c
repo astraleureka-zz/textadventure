@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 #include <stdlib.h>
+
 #include "types.h"
 #include "allocator.h"
 #include "oop.h"

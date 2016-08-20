@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <stdint.h>
 #include <time.h>
+
 #include "allocator.h"
 #include "types.h"
 #include "game.h"

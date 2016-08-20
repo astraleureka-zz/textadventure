@@ -1,11 +1,5 @@
-#include <stdio.h>
-#include <string.h>
-#include <dirent.h>
-#include <assert.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <stdint.h>
-#include <time.h>
+#include "types.h"
+#include "oop.h"
 #include "game.h"
 
 int item_init(void *self) {

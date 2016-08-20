@@ -1,8 +1,7 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <stdint.h>
+
+#include "types.h"
 #include "game.h"
 
 int main(int argc, char *argv[]) {

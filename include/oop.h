@@ -1,6 +1,8 @@
 #ifndef _OOP_H
 #define _OOP_H 1
 
+#include <stddef.h>
+
 /*+ root prototype for all objects +*/
 typedef struct {
   char *class;                                                                 /*+ string to identify the object root type +*/
