@@ -56,18 +56,22 @@ int game_init(void *self) {
   game *game                   = self;
   room **rooms                 = malloc(sizeof(room *) * MAX_ROOMS);
   monster **monsters           = malloc(sizeof(monster *) * MAX_MOBS);
+  item **items                 = malloc(sizeof(item *) * MAX_ITEMS);
   room_frec **room_frecs       = malloc(sizeof(room_frec *) * MAX_ROOMS);
   monster_frec **monster_frecs = malloc(sizeof(monster_frec *) * MAX_MOBS);
+  item_frec **item_frecs       = malloc(sizeof(item_frec *) * MAX_ITEMS);
   char *path_tmp               = malloc(256);
   room_frec room_frec_read;
   monster_frec monster_frec_read;
-  DIR *room_dh, *mob_dh;
+  item_frec item_frec_read;
+  DIR *room_dh, *mob_dh, *item_dh;
   FILE *fh;
   struct dirent *d_entry;
   uint16_t i;
   uint8_t north_id, south_id, east_id, west_id, monster_id;
 
   /* register the persistent mallocs with our allocation cleanup handler */
+  alloc_register(items);
   alloc_register(rooms);
   alloc_register(monsters);
 
@@ -83,6 +87,64 @@ int game_init(void *self) {
     room_frecs[i] = calloc(1, sizeof(room_frec));
     rooms[i]      = calloc(i, sizeof(room));
     alloc_register(rooms[i]);
+  }
+
+  for (i = 0; i < MAX_ITEMS; i++) {
+    item_frecs[i] = calloc(1, sizeof(item_frec));
+    items[i]      = calloc(i, sizeof(item));
+    alloc_register(items[i]);
+  }
+
+  /* copy item records to runtime structs */
+  item_dh = opendir("items");
+  if (item_dh == NULL) {
+    perror("opendir items");
+    exit(0);
+  }
+
+  while ((d_entry = readdir(item_dh)) != NULL) {
+    if (! strcmp(d_entry->d_name, ".") || ! strcmp(d_entry->d_name, "..")) continue;
+    if (strlen(d_entry->d_name) > 249) {
+      printf("filename too long \n");
+      continue;
+    }
+    sprintf(path_tmp, "items/%s", d_entry->d_name);
+    fh = fopen(path_tmp, "r");
+    if (fh == NULL) {
+      sprintf(path_tmp, "fopen %s", path_tmp);
+      perror(path_tmp);
+      exit(0);
+    }
+    if (! fread(&item_frec_read, sizeof(item_frec), 1, fh)) {
+      printf("fread %s too short, expected %d\n", path_tmp, sizeof(item_frec));
+      exit(0);
+    }
+
+    if (item_frec_read.item_id == 0) continue; /* item id 0 means no item assigned */
+
+    *item_frecs[item_frec_read.item_id] = item_frec_read;
+
+    fclose(fh);
+  }
+
+  closedir(item_dh);
+
+  /* copy file records to runtime struct */
+  for (i = 1; i < MAX_ITEMS; i++) {
+    if (! item_frecs[i]) continue;
+    items[i]               = NEW(item, item_frecs[i]->name);
+    items[i]->name         = strdup(item_frecs[i]->name);
+    items[i]->description  = strdup(item_frecs[i]->description);
+    items[i]->health       = item_frecs[i]->health;
+    items[i]->skill        = item_frecs[i]->skill;
+    items[i]->strength     = item_frecs[i]->strength;
+    items[i]->defense      = item_frecs[i]->defense;
+    items[i]->celerity     = item_frecs[i]->celerity;
+    items[i]->intelligence = item_frecs[i]->intelligence;
+    memcpy(&items[i]->flags, &item_frecs[i]->flags, sizeof(item_flags)); /* has no member pointers */
+
+    alloc_register(items[i]->name);
+    alloc_register(items[i]->description);
   }
 
   /* scan the mobs dir and read all entries */
@@ -232,6 +294,12 @@ int game_init(void *self) {
   }
 
   /* clean up the frecs allocations */
+  for (i = 0; i < MAX_ITEMS; i++) {
+    free(item_frecs[i]);
+  }
+
+  free(item_frecs);
+
   for (i = 0; i < MAX_ROOMS; i++) {
     free(room_frecs[i]);
   }
