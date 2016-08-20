@@ -7,29 +7,38 @@
 #include "allocator.h"
 #include "oop.h"
 
+/*+ default function for object creation +*/
 void object_describe(void *self) {
   printf("cannot describe a root object\n");
 }
 
+/*+ default function for object creation +*/
 int object_init(void *self) {
   return 1;
 }
 
+/*+ default function for object creation +*/
 boolean_t object_take_action(void *self, void *target, boolean_t player_action) {
   printf("cannot take action as a root object\n");
   return 0;
 }
 
+/*+ default function for object creation +*/
 int object_recv_action(void *self, uint8_t parameter) {
   printf("cannot recv action as a root object\n");
   return 0;
 }
 
+/*+ default function for object creation +*/
 void object_move_action(void *self, direction dir) {
   printf("cannot move action as a root object\n");
 }
 
-void *object_new(size_t size, object proto, char *class) {
+/*+ creates a new object pointer from the specified prototype object.  +*/
+void *object_new(size_t size,  /*+ size of the prototype object +*/
+                 object proto, /*+ the actual prototype object, contains function pointers to object functions +*/
+                 char *class)  /*+ the name of the object's class, as a string +*/
+{
   object *new;
 
   if (! proto.init)
@@ -48,17 +57,19 @@ void *object_new(size_t size, object proto, char *class) {
     proto.move_action = object_move_action;
 
   assert(new = calloc(1, size));
-  alloc_register(new);
   *new = proto; /* assign base object */
 
   new->class = strdup(class);
-  alloc_register(new->class);
 
+  /*+ after creating the new object, we call its initializer. if the initializer returns FALSE, the object is considered to be uninitialized and we discard it +*/
   if (! new->init(new)) {
     printf("object_new(%u, object) failed\n", size);
-
+    free(new->class);
+    free(new);
     return NULL;
   }
 
+  alloc_register(new);
+  alloc_register(new->class);
   return new;
 }

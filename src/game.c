@@ -18,6 +18,7 @@
 #include "oop.h"
 
 /* object prototype / function pointer definitions */
+/*+ monster class prototype +*/
 object monster_proto = {
   .init        = monster_init,
   .take_action = combat_generic,
@@ -25,11 +26,13 @@ object monster_proto = {
   .describe    = monster_describe
 };
 
+/*+ room class prototype +*/
 object room_proto = {
   .init     = room_init,
   .describe = room_describe
 };
 
+/*+ player class prototype +*/
 object player_proto = {
   .init = player_init,
   .take_action = combat_generic,
@@ -37,12 +40,21 @@ object player_proto = {
   .move_action = player_move
 };
 
+/*+ item class prototype +*/
 object item_proto = {
   .init     = item_init,
   .describe = item_describe
 };
 
-int game_init(void *self) {
+/*+ game class prototype +*/
+object game_proto = {
+  .init = game_init
+};
+
+/*+ initializes the core game structures, loads the *_frec data from disk and copies it into their respective runtime lists, then links objects together based on link id numbers +*/
+int game_init(void *self) /*+ pointer to called object +*/
+/*+ returns 1 upon success, 0 upon failure +*/
+{
   game *game                   = self;
   room **rooms                 = malloc(sizeof(room *) * MAX_ROOMS);
   monster **monsters           = malloc(sizeof(monster *) * MAX_MOBS);
@@ -358,11 +370,9 @@ int game_init(void *self) {
   return 1;
 }
 
-object game_proto = {
-  .init = game_init
-};
-
-int process(game *game) {
+/*+ main game logic function. accepts commands from the player and calls the respective object functions +*/
+int process(game *game) /*+ pointer to called object +*/
+{
   player *player          = game->player;
   room *room              = NULL;
   monster *monster        = NULL;

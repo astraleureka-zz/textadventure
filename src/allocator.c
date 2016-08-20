@@ -3,9 +3,10 @@
 
 #include "allocator.h"
 
-static void **alloc_cleanup;
-static size_t alloc_cleanup_count;
+static void **alloc_cleanup;       /*+ list of alloc'd pointers +*/
+static size_t alloc_cleanup_count; /*+ count of alloc'd pointers +*/
 
+/*+ performs the actual cleanup function, frees all long-running memory at program exit +*/
 void alloc_do_cleanup(void) {
   size_t i;
 
@@ -16,11 +17,14 @@ void alloc_do_cleanup(void) {
   free(alloc_cleanup);
 }
 
+/*+ registers the atexit callback. should be called early as possible in program init +*/
 void alloc_register_cb(void) {
   atexit(alloc_do_cleanup);
 }
 
-void alloc_register(void *ptr) {
+/*+ register a pointer to be automatically cleaned up at program exit +*/
+void alloc_register(void *ptr) /*+ pointer to newly-alloc'd memory +*/
+{
   assert(NULL != ptr);
   void *tmp;
   tmp = realloc(alloc_cleanup, sizeof(void *) * (alloc_cleanup_count + 1));

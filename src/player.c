@@ -4,6 +4,8 @@
 #include "types.h"
 #include "game.h"
 
+/*+ initializes the player object.
+  XXX - perhaps we should prompt the player to choose a class or other starting stats instead of randomly generating? +*/
 int player_init(void *self) {
   player *player     = self;
   player->health     = 25 + (rand() % 17);
@@ -12,7 +14,11 @@ int player_init(void *self) {
   return 1;
 }
 
-int player_attack_receive(void *self, uint8_t damage) {
+/*+ handles receiving an attack +*/
+int player_attack_receive(void *self,     /*+ pointer to called object +*/
+                          uint8_t damage) /*+ raw amount damage received +*/
+/*+ always returns 0. if the player dies, the game exits +*/
+{
   player *player = self;
 
   if (damage >= player->health) {
@@ -24,7 +30,10 @@ int player_attack_receive(void *self, uint8_t damage) {
   return 0;
 }
 
-void player_move(void *self, direction dir) {
+/*+ handles moving the player from one room to another. if the player is currently engaged in combat, they will fail to move. they will also fail to move in a direction that has no link. +*/
+void player_move(void *self,    /*+ pointer to called object +*/
+                 direction dir) /*+ enum of cardinal directions +*/
+{
   player *player = self;
   room *current  = player->room_current, *next = NULL;
   monster *monster = current->monster;
@@ -61,6 +70,7 @@ void player_move(void *self, direction dir) {
   }
 }
 
+/*+ outputs the player's current health and stats to the console +*/
 void player_check(player *player) {
   printf(" Your HP: %3d    ATK: %3d  DEF: %3d\n", player->health, player->strength, player->defense);
 }

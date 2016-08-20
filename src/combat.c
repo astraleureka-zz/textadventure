@@ -4,17 +4,11 @@
 #include "types.h"
 #include "game.h"
 
-/*+++++++++++
-  +++++++++++*/
-
-/*+++++++++++
-  Calculate the amount of damage taken, given specified strength and defense parameters.
-
-  uint8_t str Strength (of actor)
-
-  uint8_t def Defense (of target)
-  +++++++++++*/
-uint8_t combat_damage_calculate(uint8_t str, uint8_t def) {
+/*+ Calculate the amount of damage taken, given specified strength and defense parameters. +*/
+uint8_t combat_damage_calculate(uint8_t str, /*+ Strength (of actor) +*/
+                                uint8_t def) /*+ Defense (of target) +*/
+/*+ returns the raw damage value +*/
+{
   uint8_t str_base = (str + ((rand() % str) * 3 / 2));
   uint8_t def_base = ((def / 2) + ((rand() % def) / 2));
   if (def_base == 0) {
@@ -39,7 +33,12 @@ uint8_t combat_damage_calculate(uint8_t str, uint8_t def) {
   boolean_t player_action Identifies whether the actor is the player or a mob. TRUE means actor is of type player.
   +++++++++++*/
 
-boolean_t combat_generic(void *actor, void *target, boolean_t player_action) {
+/*+ handles all combat interaction between an actor and target object +*/
+boolean_t combat_generic(void *actor,             /*+ pointer to actor object (usually player or mob) +*/
+                         void *target,            /*+ pointer to target object (usually player or mob) +*/
+                         boolean_t player_action) /*+ flag to identify whether actor is player or not. if TRUE, actor's type is player* +*/
+/*+ returns TRUE when combat resulted in target's death +*/
+{
   uint8_t str, def, dmg;
   player *pl;
   monster *mob;

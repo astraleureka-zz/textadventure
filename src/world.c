@@ -7,6 +7,7 @@ int room_init(void *self) {
   return 1;
 }
 
+/*+ describes the room and its contents to the player +*/
 void room_describe(void *self) {
   room *room = self;
 

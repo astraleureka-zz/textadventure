@@ -20,8 +20,4 @@ typedef struct {
 
 int game_init(void *self);
 
-object monster_proto;
-object room_proto;
-object player_proto;
-
 #endif
