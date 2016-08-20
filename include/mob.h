@@ -50,7 +50,6 @@ struct monster_frec {
 typedef struct monster_frec monster_frec;
 
 int monster_init(void *self);
-uint8_t monster_attack(void *self, void *target);
 int monster_attack_receive(void *self, uint8_t damage);
 void monster_describe(void *self);
 void monster_check(monster *monster);

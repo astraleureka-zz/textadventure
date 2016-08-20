@@ -12,16 +12,6 @@ int monster_init(void *self) {
   return 1;
 }
 
-uint8_t monster_attack(void *self, void *target) {
-  monster *monster = self;
-  player *player   = target;
-
-  uint8_t damage = damage_calculate(monster->strength, player->defense);
-  printf("%s %s! You take %d damage.\n", monster->name2, monster->attack_str, damage);
-
-  return player->_(recv_action)(player, damage);
-}
-
 int monster_attack_receive(void *self, uint8_t damage) {
   monster *monster = self;
 

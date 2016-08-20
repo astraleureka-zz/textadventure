@@ -16,23 +16,6 @@ int player_init(void *self) {
   return 1;
 }
 
-uint8_t player_attack(void *self, void *target) {
-  player *player   = self;
-  monster *monster = target;
-
-  uint8_t damage = damage_calculate(player->strength, monster->defense);
-  printf("You attack %s! It takes %d damage.\n", monster->name2, damage);
-
-  if (monster->_(recv_action)(monster, damage)) {
-    printf("You have slain %s!\n", monster->name2);
-    monster->health = 0;
-
-    return 1;
-  }
-
-  return 0;
-}
-
 int player_attack_receive(void *self, uint8_t damage) {
   player *player = self;
 
@@ -52,7 +35,7 @@ void player_move(void *self, direction dir) {
 
   if (monster && monster->health > 0) {
     printf("You try to sneak past %s, but it notices you!\n", monster->name2);
-    monster_attack(monster, player);
+    monster->_(take_action)(monster, player, FALSE);
     return;
   }
 

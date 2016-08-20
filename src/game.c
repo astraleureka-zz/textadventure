@@ -11,11 +11,12 @@
 #include "world.h"
 #include "mob.h"
 #include "player.h"
+#include "combat.h"
 #include "oop.h"
 
 object monster_proto = {
   .init        = monster_init,
-  .take_action = monster_attack,
+  .take_action = combat_generic,
   .recv_action = monster_attack_receive,
   .describe    = monster_describe
 };
@@ -27,7 +28,7 @@ object room_proto = {
 
 object player_proto = {
   .init = player_init,
-  .take_action = player_attack,
+  .take_action = combat_generic,
   .recv_action = player_attack_receive,
   .move_action = player_move
 };
@@ -36,21 +37,6 @@ object item_proto = {
   .init     = item_init,
   .describe = item_describe
 };
-
-/* Used for both monster and player attacks */
-uint8_t damage_calculate(uint8_t atk, uint8_t def) {
-  uint8_t atk_base = (atk + ((rand() % atk) * 3 / 2));
-  uint8_t def_base = ((def / 2) + ((rand() % def) / 2));
-  if (def_base == 0) {
-    printf("Critical hit!\n");
-    return atk_base;
-  }
-  uint8_t damage   = (atk_base / def_base);
-#ifdef DEBUG
-  printf("damage_calculate(%d, %d): %d, %d == %d\n", atk, def, atk_base, def_base, damage);
-#endif
-  return damage;
-}
 
 int game_init(void *self) {
   game *game                   = self;
@@ -412,13 +398,13 @@ int process(game *game) {
         printf("The %s %s.\n", monster->name2, monster->defend_str);
       }
 
-      if (player->_(take_action)(player, monster))
+      if (player->_(take_action)(player, monster, TRUE))
         monster_will_attack = 0;
 
       if (monster_will_defend)
         monster->defense -= monster_will_defend;
       if (monster_will_attack)
-        monster->_(take_action)(monster, player);
+        monster->_(take_action)(monster, player, FALSE);
 
       player_check(player);
       monster_check(monster);

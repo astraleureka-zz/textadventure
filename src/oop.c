@@ -13,7 +13,7 @@ int object_init(void *self) {
   return 1;
 }
 
-uint8_t object_take_action(void *self, void *target) {
+boolean_t object_take_action(void *self, void *target, boolean_t player_action) {
   printf("cannot take action as a root object\n");
   return 0;
 }

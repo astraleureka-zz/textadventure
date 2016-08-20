@@ -3,10 +3,6 @@
 
 #define MAX_NAMELEN 32
 #define MAX_STRLEN 256
-#define FALSE 0
-#define TRUE !FALSE
-
-typedef unsigned int boolean_t;
 
 #include <stdint.h>
 #include "oop.h"
@@ -24,7 +20,6 @@ typedef struct {
   player *player;
 } game;
 
-uint8_t damage_calculate(uint8_t atk, uint8_t def);
 int game_init(void *self);
 
 object monster_proto;

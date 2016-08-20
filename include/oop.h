@@ -1,6 +1,11 @@
 #ifndef _OOP_H
 #define _OOP_H 1
 
+#define FALSE 0
+#define TRUE !FALSE
+
+typedef unsigned int boolean_t;
+
 #include <stdint.h>
 
 typedef enum {
@@ -12,7 +17,7 @@ typedef struct {
   int (*init)(void *self);
   void (*destroy)(void *self);
   void (*describe)(void *self);
-  uint8_t (*take_action)(void *self, void *target);
+  boolean_t (*take_action)(void *self, void *target, boolean_t player_action);
   int (*recv_action)(void *self, uint8_t parameter);
   void (*move_action)(void *self, direction dir);
 } object;
@@ -20,7 +25,7 @@ typedef struct {
 int object_init(void *self);
 void object_destroy(void *self);
 void object_describe(void *self);
-uint8_t take_action(void *self, void *target);
+boolean_t take_action(void *self, void *target, boolean_t player_action);
 int recv_action(void *self, uint8_t parameter);
 void move_action(void *self, direction dir);
 void *object_new(size_t size, object proto, char *class);

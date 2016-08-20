@@ -19,7 +19,6 @@ typedef struct {
 } player;
 
 int player_init(void *self);
-uint8_t player_attack(void *self, void *target);
 int player_attack_receive(void *self, uint8_t damage);
 void player_move(void *self, direction dir);
 void player_check(player *player);
