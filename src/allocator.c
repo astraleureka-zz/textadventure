@@ -21,6 +21,7 @@ void alloc_register_cb(void) {
 }
 
 void alloc_register(void *ptr) {
+  assert(NULL != ptr);
   void *tmp;
   tmp = realloc(alloc_cleanup, sizeof(void *) * (alloc_cleanup_count + 1));
   assert(NULL != tmp);
