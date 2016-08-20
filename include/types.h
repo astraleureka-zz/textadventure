@@ -5,6 +5,8 @@
 #define TRUE !FALSE
 typedef unsigned int boolean_t;
 
+#define MAX_NAMELEN 32
+#define MAX_STRLEN 256
 #define MAX_ITEMS 256
 #define MAX_MOBS 256
 #define MAX_ROOMS 256
