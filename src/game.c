@@ -51,7 +51,7 @@ object game_proto = {
   .init = game_init
 };
 
-/*+ initializes the core game structures, loads the *_frec data from disk and copies it into their respective runtime lists, then links objects together based on link id numbers +*/
+/*+ initializes the core game structures, loads the on-disk copies of each runtime structure and creates linkage between objects based on object id +*/
 int game_init(void *self) /*+ pointer to called object +*/
 /*+ returns 1 upon success, 0 upon failure +*/
 {
@@ -62,14 +62,7 @@ int game_init(void *self) /*+ pointer to called object +*/
   room_frec **room_frecs       = malloc(sizeof(room_frec *) * MAX_ROOMS);
   monster_frec **monster_frecs = malloc(sizeof(monster_frec *) * MAX_MOBS);
   item_frec **item_frecs       = malloc(sizeof(item_frec *) * MAX_ITEMS);
-  char *path_tmp               = malloc(256);
   player *playerobj            = NULL;
-  room_frec room_frec_read;
-  monster_frec monster_frec_read;
-  item_frec item_frec_read;
-  DIR *room_dh, *mob_dh, *item_dh;
-  FILE *fh;
-  struct dirent *d_entry;
   uint16_t i;
   uint8_t north_id, south_id, east_id, west_id, monster_id;
 
@@ -78,69 +71,33 @@ int game_init(void *self) /*+ pointer to called object +*/
   alloc_register(rooms);
   alloc_register(monsters);
 
-  /* initialize the memory for the both file record structures and the runtime structures */
+  /* initialize the memory for the runtime structures */
   /* we explicitly start from 0 here even though 0 is reserved, since we check against it */
   for (i = 0; i < MAX_MOBS; i++) {
     monster_frecs[i] = calloc(1, sizeof(monster_frec));
     monsters[i]      = calloc(1, sizeof(monster));
-    assert(NULL != monster_frecs[i]);
     alloc_register(monsters[i]);
   }
 
   for (i = 0; i < MAX_ROOMS; i++) {
     room_frecs[i] = calloc(1, sizeof(room_frec));
     rooms[i]      = calloc(i, sizeof(room));
-    assert(NULL != room_frecs[i]);
     alloc_register(rooms[i]);
   }
 
   for (i = 0; i < MAX_ITEMS; i++) {
     item_frecs[i] = calloc(1, sizeof(item_frec));
     items[i]      = calloc(i, sizeof(item));
-    assert(NULL != item_frecs[i]);
     alloc_register(items[i]);
   }
 
-  /* copy item records to runtime structs */
-  item_dh = opendir("items");
-  if (NULL == item_dh) {
-    perror("opendir items");
-    exit(0);
-  }
-
-  while (NULL != (d_entry = readdir(item_dh))) {
-    if (*d_entry->d_name == '.') continue;
-    if (strlen(d_entry->d_name) > 249) {
-      printf("filename too long \n");
-      continue;
-    }
-    sprintf(path_tmp, "items/%s", d_entry->d_name);
-    fh = fopen(path_tmp, "r");
-#ifdef DEBUG
-    printf("fopen(%s, 'r') = %d\n", path_tmp, fh);
-#endif
-    if (NULL == fh) {
-      sprintf(path_tmp, "fopen %s", path_tmp);
-      perror(path_tmp);
-      exit(0);
-    }
-    if (! fread(&item_frec_read, sizeof(item_frec), 1, fh)) {
-      printf("fread %s too short, expected %d\n", path_tmp, sizeof(item_frec));
-      exit(0);
-    }
-
-    if (item_frec_read.item_id == 0) continue; /* item id 0 means no item assigned */
-
-    *item_frecs[item_frec_read.item_id] = item_frec_read;
-
-    fclose(fh);
-  }
-
-  closedir(item_dh);
+  util_frec_load("items", item_frecs, sizeof(item_frec));
+  util_frec_load("mobs",  monster_frecs, sizeof(monster_frec));
+  util_frec_load("rooms", room_frecs, sizeof(room_frec));
 
   /* copy file records to runtime struct */
   for (i = 1; i < MAX_ITEMS; i++) {
-    if (! item_frecs[i]) continue;
+    if (! item_frecs[i]->item_id) continue;
     assert(items[i]        = NEW(item, item_frecs[i]->name));
     items[i]->name         = strdup(item_frecs[i]->name);
     items[i]->description  = strdup(item_frecs[i]->description);
@@ -156,46 +113,9 @@ int game_init(void *self) /*+ pointer to called object +*/
     alloc_register(items[i]->description);
   }
 
-  /* scan the mobs dir and read all entries */
-  mob_dh = opendir("mobs");
-  if (NULL == mob_dh) {
-    perror("opendir mobs");
-    exit(0);
-  }
-
-  while (NULL != (d_entry = readdir(mob_dh))) {
-    if (*d_entry->d_name == '.') continue;
-    if (strlen(d_entry->d_name) > 249) {
-      printf("filename too long \n");
-      continue;
-    }
-    sprintf(path_tmp, "mobs/%s", d_entry->d_name);
-    fh = fopen(path_tmp, "r");
-#ifdef DEBUG
-    printf("fopen(%s, 'r') = %d\n", path_tmp, fh);
-#endif
-    if (NULL == fh) {
-      sprintf(path_tmp, "fopen %s", path_tmp);
-      perror(path_tmp);
-      exit(0);
-    }
-    if (! fread(&monster_frec_read, sizeof(monster_frec), 1, fh)) {
-      printf("fread %s too short, expected %d\n", path_tmp, sizeof(monster_frec));
-      exit(0);
-    }
-
-    if (monster_frec_read.monster_id == 0) continue; /* monster id 0 means no monster assigned */
-
-    *monster_frecs[monster_frec_read.monster_id] = monster_frec_read;
-
-    fclose(fh);
-  }
-
-  closedir(mob_dh);
-
   /* copy file records to runtime struct */
   for (i = 1; i < MAX_MOBS; i++) {
-    if (! monster_frecs[i]) continue;
+    if (! monster_frecs[i]->monster_id) continue;
     assert(monsters[i]        = NEW(monster, monster_frecs[i]->name));
     monsters[i]->name         = strdup(monster_frecs[i]->name);
     monsters[i]->name2        = strdup(monster_frecs[i]->name2);
@@ -242,46 +162,9 @@ int game_init(void *self) /*+ pointer to called object +*/
     alloc_register(monsters[i]->desc_str);
   }
 
-  /* similar process for rooms, read all entries */
-  room_dh = opendir("rooms");
-  if (NULL == room_dh) {
-    perror("opendir room_dh");
-    exit(0);
-  }
-
-  while (NULL != (d_entry = readdir(room_dh))) {
-    if (*d_entry->d_name == '.') continue;
-    if (strlen(d_entry->d_name) > 249) {
-      printf("filename too long \n");
-      continue;
-    }
-    sprintf(path_tmp, "rooms/%s", d_entry->d_name);
-    fh = fopen(path_tmp, "r");
-#ifdef DEBUG
-    printf("fopen(%s, 'r') = %d\n", path_tmp, fh);
-#endif
-    if (NULL == fh) {
-      sprintf(path_tmp, "fopen %s", path_tmp);
-      perror(path_tmp);
-      exit(0);
-    }
-    if (! fread(&room_frec_read, sizeof(room_frec), 1, fh)) {
-      printf("fread %s too short, expected %d\n", path_tmp, sizeof(room_frec));
-      exit(0);
-    }
-
-    if (room_frec_read.room_id == 0) continue; /* 0 means no room, reserved */
-
-    *room_frecs[room_frec_read.room_id] = room_frec_read;
-
-    fclose(fh);
-  }
-
-  closedir(room_dh);
-
   /* first create all records, don't check mappings yet */
   for (i = 1; i < MAX_ROOMS; i++) {
-    if (! room_frecs[i]) continue;
+    if (! room_frecs[i]->room_id) continue;
     assert(rooms[i] = NEW(room, room_frecs[i]->name));
     rooms[i]->name        = strdup(room_frecs[i]->name);
     rooms[i]->description = strdup(room_frecs[i]->description);
@@ -358,8 +241,6 @@ int game_init(void *self) /*+ pointer to called object +*/
   }
 
   free(monster_frecs);
-
-  free(path_tmp);
 
   /* finally bootstrap the game object */
   assert(playerobj = NEW(player, "player"));
