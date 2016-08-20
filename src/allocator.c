@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+
 #include "allocator.h"
 
 static void **alloc_cleanup;
@@ -20,6 +21,9 @@ void alloc_register_cb(void) {
 }
 
 void alloc_register(void *ptr) {
-  alloc_cleanup = realloc(alloc_cleanup, sizeof(void *) * (alloc_cleanup_count + 1));
+  void *tmp;
+  tmp = realloc(alloc_cleanup, sizeof(void *) * (alloc_cleanup_count + 1));
+  assert(NULL != tmp);
+  alloc_cleanup = tmp;
   alloc_cleanup[alloc_cleanup_count++] = ptr;
 }
