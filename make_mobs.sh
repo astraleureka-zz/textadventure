@@ -1,6 +1,7 @@
 #!/bin/sh
 rm -rf mobs/
 mkdir mobs/
+touch mobs/.placeholder
 #		         monster_id   health  skill     str     def     cel     int item_id	name			name2				<attack str>							<defend str>									<description>
 ./mobtool mobs/ghoul		1	15	0	10	8	3	0	0	"a ghoul"		"the ghoul"			"lunges forth, clawing at your flesh"				"looks at you eye to eye, ready to absorb the impact of your blade"		"Your typical garden variety ghoul. Poor temper and outright disgusting to boot."
 ./mobtool mobs/golem		3	27	4	3	12	1	2	0	"a golem"		"the earthen golem"		"pelts you with chunks of rock"					"remains unmoving, with a stony gaze"						"An earthen golem, enchanted by a mysterious wizard. It looks at you with a lifeless stare."
