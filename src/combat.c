@@ -32,7 +32,7 @@ uint8_t combat_damage_calculate(uint8_t str, uint8_t def) {
   }
   uint8_t damage   = (str_base / def_base);
 #ifdef DEBUG
-  printf("damage_calculate(%d, %d): %d, %d == %d\n", str, def, str_base, def_base, damage);
+  printf("combat_damage_calculate(%d, %d): %d, %d == %d\n", str, def, str_base, def_base, damage);
 #endif
   return damage;
 }
