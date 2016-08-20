@@ -1,7 +1,11 @@
-CC?=gcc
-CFLAGS+=-Wall -g3 -Iinclude/
+APP_NAME=game
+CXREF?=cxref
+DOCS?=1
+INCLUDES+=-Iinclude/ 
+DEFINES+=
+CFLAGS+=-Wall -g3 $(INCLUDES) $(DEFINES)
 LDFLAGS+=
-GAME_OBJS=src/allocator.o src/oop.o src/game.o src/world.o src/mob.o src/player.o src/item.o
+GAME_OBJS=src/allocator.o src/oop.o src/game.o src/world.o src/mob.o src/player.o src/item.o src/combat.o
 
 all: game roomtool mobtool
 
@@ -14,8 +18,11 @@ roomtool: src/roomtool.o
 mobtool: src/mobtool.o
 	$(CC) $(LDFLAGS) $< -o $@
 
-*.c.o:
-	$(CC) $(CFLAGS) -c $< -o $@
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+ifeq ($(DOCS), 1)
+	$(CXREF) -Odocs -N$(APP_NAME) -html-src $(INCLUDES) $(DEFINES) $<
+endif
 
 clean:
 	rm -f src/*.o game mobtool roomtool 
