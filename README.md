@@ -10,21 +10,26 @@ After checking out the source, just run
 make
 ```
 
-to build the code. Before you can run the game you will need to build the assets:
+to build the code. By default, documentation is enabled. To build without docs, pass **DOCS** to make:
+```
+make DOCS=0
+```
+
+Before you can run the game you will need to build the assets:
 
 ```
+./make_items.sh
 ./make_rooms.sh
 ./make_mobs.sh
 ```
 
-Once the assets are created, simply run ./game. To modify the map or monsters, edit the respective make_*.sh file. 
+Once the assets are created, simply run ./game. To modify the map, monsters or items, edit the respective make_*.sh file. 
 The parameters for each option are described in the file and have working defaults to demonstrate how it works.
 
 ## Todo
 
 - More detailed character/mob mechanics (accuracy, proper critical hits, player defense)
 - Player inventory
-- Healing/non-combat items (mob_id > 127)
 - Event triggers (e.g. unlock a door from another room)
 
 ## License
