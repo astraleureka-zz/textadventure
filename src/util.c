@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <jansson.h>
 
+#include "allocator.h"
 #include "types.h"
 #include "util.h"
 
@@ -115,7 +116,7 @@ boolean_t util_load_json_asset(char* path,                               /*+ pat
 
     assert(target[obj_id] = object_new(proto_size, proto, path_tmp));
     if (! unpacker_cb(target[obj_id], json_obj)) {
-      printf("%s - unpacker callback failed, check file syntax?\n", path_tmp);
+      printf("%s - unable to unpack file, check syntax or build with debugging\n", path_tmp);
       goto ERROR;
     }
 
@@ -143,6 +144,10 @@ inline char* util_json_object_string(json_t* obj, /*+ json node pointer +*/
 {
   json_t* tmp = json_object_get(obj, key);
   if (json_is_string(tmp)) return strdup(json_string_value(tmp));
+#ifdef DEBUG
+  fprintf(stderr, "util_json_object_string(%p, %s): key is undefined\n", (void*) obj, key);
+  __backtrace();
+#endif
   return strdup("(null)");
 }
 
@@ -153,12 +158,20 @@ inline char* util_json_array_string(json_t* obj, /*+ json node pointer +*/
 {
   json_t* tmp = json_array_get(obj, idx);
   if (json_is_string(tmp)) return strdup(json_string_value(tmp));
+#ifdef DEBUG
+  fprintf(stderr, "util_json_array_string(%p, %d): index is undefined\n", (void*) obj, idx);
+  __backtrace();
+#endif
   return strdup("(null)");
 }
 
 #if JANSSON_VERSION_HEX < 0x020700
 inline size_t json_string_length(const json_t* string) {
   if (json_is_string(string)) return strlen(json_string_value(string));
+#ifdef DEBUG
+  fprintf(stderr, "json_string_length(%p): not a string\n", (void*) string);
+  __backtrace();
+#endif
   return 0;
 }
 #endif

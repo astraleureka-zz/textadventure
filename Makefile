@@ -10,6 +10,11 @@ GAME_OBJS=src/allocator.o src/oop.o src/game.o src/world.o src/mob.o src/player.
 
 ifeq ($(DEBUG), 1)
 CFLAGS+=-DDEBUG -rdynamic
+LDFLAGS+=-rdynamic
+endif
+
+ifeq ($(DEBUG_ALLOC), 1)
+CFLAGS+=-DDEBUG_ALLOC
 endif
 
 all: game

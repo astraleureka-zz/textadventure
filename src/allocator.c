@@ -2,8 +2,6 @@
 # include <stdio.h>
 # include <execinfo.h>
 # include <signal.h>
-void __backtrace_and_die();
-void __backtrace();
 #endif
 
 #include <assert.h>
@@ -37,10 +35,9 @@ void alloc_register_cb(void) {
 /*+ register a pointer to be automatically cleaned up at program exit +*/
 void alloc_register(void *ptr) /*+ pointer to newly-alloc'd memory +*/
 {
-#ifdef DEBUG
-  fprintf(stderr, "===[ %p ]===\n", ptr);
-  __backtrace(FALSE);
-  fprintf(stderr, "\n");
+#if defined(DEBUG) && defined(DEBUG_ALLOC)
+  fprintf(stderr, "alloc_register(%p)\n", ptr);
+  __backtrace();
 #endif
 
   assert(NULL != ptr);
@@ -52,14 +49,23 @@ void alloc_register(void *ptr) /*+ pointer to newly-alloc'd memory +*/
 }
 
 #ifdef DEBUG
+/*+ backtrace and exit immediately. +*/
 void __backtrace_and_die() {
   __backtrace();
   exit(0);
 }
 
+/*+ backtrace +*/
 void __backtrace() {
+# ifdef __GLIBC__
   void* trace[255];
+  char** messages = NULL;
   const int calls = backtrace(trace, sizeof(trace) / sizeof(void*));
+
   backtrace_symbols_fd(trace, calls, 1);
+  fprintf(stderr, "\n");
+# else
+  fprintf(stderr, "not running under glibc, cannot take backtrace\n");
+# endif
 }
 #endif
