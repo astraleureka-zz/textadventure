@@ -47,10 +47,11 @@ void room_describe(void* self) {
 }
 
 /*+ loads data from json structure into mob structure +*/
-boolean_t room_json_unpack(room_t* room,     /*+ target room structure +*/
+boolean_t room_json_unpack(void* room_ptr,   /*+ target room structure +*/
                           json_t* json_room) /*+ source json structure +*/
 /*+ returns TRUE if load was successful, FALSE otherwise +*/
 {
+  room_t* room = room_ptr;
   if (! room || ! json_room) return FALSE;
 
   room->name         = JSON_OBJECT_STRING(json_room, "name");

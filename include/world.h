@@ -29,7 +29,7 @@ extern object room_proto;
 
 int room_init(void* self);
 void room_describe(void* self);
-boolean_t room_json_unpack(room_t* room, json_t* json_room);
+boolean_t room_json_unpack(void* room_ptr, json_t* json_room);
 boolean_t room_linkage_create(room_t** rooms, mob_t** mobs, item_t** items);
 
 #endif

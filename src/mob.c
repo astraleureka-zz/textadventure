@@ -81,11 +81,12 @@ void mob_check(mob_t* mob) {
 }
 
 /*+ loads data from json structure into mob structure +*/
-boolean_t mob_json_unpack(mob_t* mob,       /*+ target mob structure +*/
+boolean_t mob_json_unpack(void* mob_ptr,    /*+ target mob structure +*/
                           json_t* json_mob) /*+ source json structure +*/
 /*+ returns TRUE if load was successful, FALSE otherwise +*/
 {
   json_t* json_array = NULL, *json_tmp = NULL;
+  mob_t* mob = mob_ptr;
   uint8_t idx;
 
   if (! mob || ! json_mob) return FALSE;

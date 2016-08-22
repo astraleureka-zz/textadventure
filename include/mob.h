@@ -48,7 +48,7 @@ int mob_attack_receive(void* self, uint8_t damage);
 void mob_describe(void* self);
 char* mob_string_get(mob_t* mob, mob_string_type t);
 void mob_check(mob_t* mob);
-boolean_t mob_json_unpack(mob_t* mob, json_t* json_mob);
+boolean_t mob_json_unpack(void* mob_ptr, json_t* json_mob);
 void mob_copy(mob_t* copy, mob_t* mob);
 
 #endif

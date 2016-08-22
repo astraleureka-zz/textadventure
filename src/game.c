@@ -42,17 +42,18 @@ int game_init(void* self) /*+ pointer to called object +*/
   game_t* game        = self;
   player_t* playerobj = NULL;
 
-  if (! item_load(items)) {
+  /* explicitly cast the list pointers to void** to silence an irrelevant warning about incompatible types */
+  if (! util_load_json_asset("items", (void**) items, sizeof(item_t*), MAX_ITEMS, item_proto, sizeof(item_t), item_json_unpack)) {
     error = "problems when loading items";
     goto ERROR;
   }
 
-  if (! util_load_json_asset("mobs", mobs, sizeof(mob_t*), MAX_MOBS, mob_proto, sizeof(mob_t), mob_json_unpack)) {
+  if (! util_load_json_asset("mobs", (void**) mobs, sizeof(mob_t*), MAX_MOBS, mob_proto, sizeof(mob_t), mob_json_unpack)) {
     error = "problems when loading mobs";
     goto ERROR;
   }
 
-  if (! util_load_json_asset("rooms", rooms, sizeof(room_t*), MAX_ROOMS, room_proto, sizeof(room_t), room_json_unpack)) {
+  if (! util_load_json_asset("rooms", (void**) rooms, sizeof(room_t*), MAX_ROOMS, room_proto, sizeof(room_t), room_json_unpack)) {
     error = "problems when loading world";
     goto ERROR;
   }
