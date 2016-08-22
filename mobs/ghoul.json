@@ -1,0 +1,24 @@
+{
+  "id": 1,
+  "gender": 1,
+  "health": 15,
+  "skill": 0,
+  "strength": 5,
+  "defense": 3,
+  "celerity": 5,
+  "intelligence": 0,
+  "inventory": [],
+  "name": "a ghoul",
+  "name2": "the ghoul",
+  "attack_strings": [
+    "The ghoul lunges forth, clawing at your flesh.",
+    "With an unearthly groan the ghoul swipes at you."
+  ],
+  "defend_strings": [
+    "The ghoul looks at you eye to eye, ready to absorb the impact of your blade."
+  ],
+  "describe_strings": [
+    "Your typical garden variety ghoul. Poor temper and outright disgusting to boot."
+  ]
+}
+

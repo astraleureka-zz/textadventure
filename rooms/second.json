@@ -1,0 +1,11 @@
+{
+  "id": 2,
+  "mob_id": 1,
+  "north": 0,
+  "south": 1,
+  "east": 0,
+  "west": 0,
+  "name": "the second room",
+  "description": "Nothing here either."
+}
+
