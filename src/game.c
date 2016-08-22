@@ -32,41 +32,57 @@ object game_proto = {
 };
 
 /*+ initializes the core game structures, loads the on-disk copies of each runtime structure and creates linkage between objects based on object id +*/
-int game_init(void *self) /*+ pointer to called object +*/
+int game_init(void* self) /*+ pointer to called object +*/
 /*+ returns 1 upon success, 0 upon failure +*/
 {
-  game *game                   = self;
-  player *playerobj            = NULL;
-  room **rooms;
-  monster **monsters;
-  item **items;
+  char* error;
+  room_t** rooms      = malloc(sizeof(room_t*) * MAX_ROOMS);
+  mob_t** mobs        = malloc(sizeof(mob_t*) * MAX_MOBS);
+  item_t** items      = malloc(sizeof(item_t*) * MAX_ITEMS);
+  game_t* game        = self;
+  player_t* playerobj = NULL;
 
-  items    = item_load();
-  monsters = monster_load(items);
-  rooms    = room_load(monsters, items);
+  if (! item_load(items)) {
+    error = "problems when loading items";
+    goto ERROR;
+  }
+
+  if (! mob_load(mobs, items)) {
+    error = "problems when loading mobs";
+    goto ERROR;
+  }
+
+  if (! room_load(rooms, mobs, items)) {
+    error = "problems when loading world";
+    goto ERROR;
+  }
 
   /* bootstrap the game object */
   assert(playerobj = NEW(player, "player"));
-  playerobj->room_current  = rooms[1];
-  game->start              = rooms[1];
-  game->player             = playerobj;
+  playerobj->room_current = rooms[1];
+  game->start             = rooms[1];
+  game->player            = playerobj;
 
   return 1;
+
+  ERROR:
+  printf("FATAL - %s\n", error);
+  exit(0);
 }
 
 /*+ main game logic function. accepts commands from the player and calls the respective object functions +*/
-int process(game *game) /*+ pointer to called object +*/
+int process(game_t* game) /*+ pointer to called object +*/
 {
-  player *player          = game->player;
-  room *room              = NULL;
-  monster *monster        = NULL;
-  int monster_will_defend = 0;
-  int monster_will_attack = 0;
+  player_t* player    = game->player;
+  room_t* room        = NULL;
+  mob_t* mob            = NULL;
+  int mob_will_defend = 0;
+  int mob_will_attack = 0;
 
   if (player)
     room = player->room_current;
-  if (room && room->monster)
-    monster = room->monster;
+  if (room && room->mob)
+    mob = room->mob;
 
   printf("\n> ");
 
@@ -96,30 +112,30 @@ int process(game *game) /*+ pointer to called object +*/
       break;
 
     case 'a':
-      if (! monster) {
+      if (! mob) {
         printf("You swing your broadsword at the air. This makes you both look and feel rather foolish.\n");
         return 1;
       }
-      else if (monster->health == 0) {
-        printf("You poke %s with your broadsword. Unfortunately, %s lifeless corpse doesn't give much of a fight.\n", monster->name2, util_pronoun_get(monster->gender, U_PRONOUN_POSSESSIVE));
+      else if (mob->health == 0) {
+        printf("You poke %s with your broadsword. Unfortunately, %s lifeless corpse doesn't give much of a fight.\n", mob->name2, util_pronoun_get(mob->gender, U_PRONOUN_POSSESSIVE));
         return 1;
       }
 
-      if (monster_will_defend) {
-        monster->defense += monster_will_defend;
-        printf("The %s %s.\n", monster->name2, monster->defend_str);
+      if (mob_will_defend) {
+        mob->defense += mob_will_defend;
+        printf("%s\n", mob_string_get(mob, MOB_STR_DEFEND));
       }
 
-      if (player->_(take_action)(player, monster, TRUE))
-        monster_will_attack = 0;
+      if (player->_(take_action)(player, mob, TRUE))
+        mob_will_attack = 0;
 
-      if (monster_will_defend)
-        monster->defense -= monster_will_defend;
-      if (monster_will_attack)
-        monster->_(take_action)(monster, player, FALSE);
+      if (mob_will_defend)
+        mob->defense -= mob_will_defend;
+      if (mob_will_attack)
+        mob->_(take_action)(mob, player, FALSE);
 
       player_check(player);
-      monster_check(monster);
+      mob_check(mob);
       break;
 
     case 'l':
@@ -130,8 +146,8 @@ int process(game *game) /*+ pointer to called object +*/
     case 'c':
       printf("You check yourself before you wreck yourself.\n");
       player_check(player);
-      if (monster)
-        monster_check(monster);
+      if (mob)
+        mob_check(mob);
       break;
 
     case 'h':
@@ -149,9 +165,9 @@ int process(game *game) /*+ pointer to called object +*/
   return 1;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   alloc_register_cb();
-  game *gameobj = NULL;
+  game_t* gameobj = NULL;
 
   assert(gameobj = NEW(game, ""));
 
@@ -166,4 +182,5 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+
 

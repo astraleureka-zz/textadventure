@@ -8,38 +8,38 @@
 #include "oop.h"
 
 /*+ default function for object creation +*/
-void object_describe(void *self) {
+void object_describe(void* self) {
   printf("cannot describe a root object\n");
 }
 
 /*+ default function for object creation +*/
-int object_init(void *self) {
+int object_init(void* self) {
   return 1;
 }
 
 /*+ default function for object creation +*/
-boolean_t object_take_action(void *self, void *target, boolean_t player_action) {
+boolean_t object_take_action(void* self, void* target, boolean_t player_action) {
   printf("cannot take action as a root object\n");
   return 0;
 }
 
 /*+ default function for object creation +*/
-int object_recv_action(void *self, uint8_t parameter) {
+int object_recv_action(void* self, uint8_t parameter) {
   printf("cannot recv action as a root object\n");
   return 0;
 }
 
 /*+ default function for object creation +*/
-void object_move_action(void *self, direction dir) {
+void object_move_action(void* self, direction dir) {
   printf("cannot move action as a root object\n");
 }
 
 /*+ creates a new object pointer from the specified prototype object.  +*/
-void *object_new(size_t size,  /*+ size of the prototype object +*/
+void* object_new(size_t size,  /*+ size of the prototype object +*/
                  object proto, /*+ the actual prototype object, contains function pointers to object functions +*/
-                 char *class)  /*+ the name of the object's class, as a string +*/
+                 char* class)  /*+ the name of the object's class, as a string +*/
 {
-  object *new;
+  object* new;
 
   if (! proto.init)
     proto.init = object_init;
@@ -61,7 +61,7 @@ void *object_new(size_t size,  /*+ size of the prototype object +*/
 
   new->class = strdup(class);
 
-  /*+ after creating the new object, we call its initializer. if the initializer returns FALSE, the object is considered to be uninitialized and we discard it +*/
+  /* after creating the new object, we call its initializer. if the initializer returns FALSE, the object is considered to be uninitialized and we discard it */
   if (! new->init(new)) {
     printf("object_new(%u, object) failed\n", size);
     free(new->class);

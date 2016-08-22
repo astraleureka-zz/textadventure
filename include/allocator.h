@@ -2,6 +2,6 @@
 #define _ALLOCATOR_H 1
 
 void alloc_register_cb(void);
-void alloc_register(void *ptr);
+void alloc_register(void* ptr);
 
 #endif

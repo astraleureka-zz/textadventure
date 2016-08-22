@@ -10,6 +10,8 @@ typedef unsigned int boolean_t;
 #define MAX_ITEMS 256
 #define MAX_MOBS 256
 #define MAX_ROOMS 256
+#define MAX_ITEMCNT 32
+#define MAX_STRCNT 32
 
 #include <stdint.h>
 

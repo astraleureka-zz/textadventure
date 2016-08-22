@@ -15,12 +15,12 @@ struct item_flags {
   boolean_t reserved:1;
 };
 
-typedef struct item_flags item_flags;
+typedef struct item_flags item_flags_t;
 
 struct item {
   object proto;
 
-  item_flags flags;
+  item_flags_t flags;
   uint8_t health;
   uint8_t skill;
   uint8_t strength;
@@ -28,31 +28,14 @@ struct item {
   uint8_t celerity;
   uint8_t intelligence;
   uint8_t reserved[7];
-  char *name;
-  char *description;
+  char* name;
+  char* description;
 };
 
-typedef struct item item;
+typedef struct item item_t;
 
-struct item_frec {
-  uint8_t item_id;
-
-  item_flags flags;
-  uint8_t health;
-  uint8_t skill;
-  uint8_t strength;
-  uint8_t defense;
-  uint8_t celerity;
-  uint8_t intelligence;
-  uint8_t reserved[7];
-  char name[MAX_NAMELEN];
-  char description[MAX_STRLEN];
-};
-
-typedef struct item_frec item_frec;
-
-int item_init(void *self);
-void item_describe(void *self);
-item** item_load(void);
+int item_init(void* self);
+void item_describe(void* self);
+boolean_t item_load(item_t** items);
 
 #endif

@@ -4,10 +4,10 @@
 #include "types.h"
 
 /* Player definitions */
-typedef struct {
+struct player {
   object proto;
 
-  room *room_current;
+  room_t* room_current;
 
   uint8_t health;
   uint8_t skill;
@@ -15,11 +15,13 @@ typedef struct {
   uint8_t defense;
   uint8_t celerity;
   uint8_t intelligence;
-} player;
+};
 
-int player_init(void *self);
-int player_attack_receive(void *self, uint8_t damage);
-void player_move(void *self, direction dir);
-void player_check(player *player);
+typedef struct player player_t;
+
+int player_init(void* self);
+int player_attack_receive(void* self, uint8_t damage);
+void player_move(void* self, direction dir);
+void player_check(player_t* player);
 
 #endif

@@ -8,13 +8,15 @@
 #include "player.h"
 
 /*+ core game object, holds reference to spawn point and player object +*/
-typedef struct {
+struct game {
   object proto;
 
-  room *start;
-  player *player;
-} game;
+  room_t* start;
+  player_t* player;
+};
 
-int game_init(void *self);
+typedef struct game game_t;
+
+int game_init(void* self);
 
 #endif

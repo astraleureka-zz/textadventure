@@ -26,22 +26,22 @@ uint8_t combat_damage_calculate(uint8_t str, /*+ Strength (of actor) +*/
 /*+++++++++++
   This function handles all combat interaction between an actor and target object
 
-  void *actor Pointer to the actor object (expected: player or mob)
+  void* actor Pointer to the actor object (expected: player or mob)
 
-  void *target Pointer to the target object (expected: player or mob)
+  void* target Pointer to the target object (expected: player or mob)
 
   boolean_t player_action Identifies whether the actor is the player or a mob. TRUE means actor is of type player.
   +++++++++++*/
 
 /*+ handles all combat interaction between an actor and target object +*/
-boolean_t combat_generic(void *actor,             /*+ pointer to actor object (usually player or mob) +*/
-                         void *target,            /*+ pointer to target object (usually player or mob) +*/
+boolean_t combat_generic(void* actor,             /*+ pointer to actor object (usually player or mob) +*/
+                         void* target,            /*+ pointer to target object (usually player or mob) +*/
                          boolean_t player_action) /*+ flag to identify whether actor is player or not. if TRUE, actor's type is player* +*/
 /*+ returns TRUE when combat resulted in target's death +*/
 {
   uint8_t str, def, dmg;
-  player *pl;
-  monster *mob;
+  player_t* pl;
+  mob_t* mob;
 
   if (TRUE == player_action) {
     pl  = actor;
@@ -70,7 +70,7 @@ boolean_t combat_generic(void *actor,             /*+ pointer to actor object (u
   }
 
   else {
-    printf("%s %s! You take %d damage.\n", mob->name2, mob->attack_str, dmg);
+    printf("%s You take %d damage.\n", mob_string_get(mob, MOB_STR_ATTACK), dmg);
 
     if (pl->_(recv_action)(pl, dmg)) {
       printf("You have died!\n");
