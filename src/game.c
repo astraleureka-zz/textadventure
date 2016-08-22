@@ -47,13 +47,18 @@ int game_init(void* self) /*+ pointer to called object +*/
     goto ERROR;
   }
 
-  if (! mob_load(mobs, items)) {
+  if (! util_load_json_asset("mobs", mobs, sizeof(mob_t*), MAX_MOBS, mob_proto, sizeof(mob_t), mob_json_unpack)) {
     error = "problems when loading mobs";
     goto ERROR;
   }
 
-  if (! room_load(rooms, mobs, items)) {
+  if (! util_load_json_asset("rooms", rooms, sizeof(room_t*), MAX_ROOMS, room_proto, sizeof(room_t), room_json_unpack)) {
     error = "problems when loading world";
+    goto ERROR;
+  }
+
+  if (! room_linkage_create(rooms, mobs, items)) {
+    error = "problems when linking rooms together";
     goto ERROR;
   }
 

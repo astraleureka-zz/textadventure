@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <jansson.h>
 
+#include "oop.h"
+
 #define JSON_OBJECT_VALUE(obj, key) json_object_get(obj, key)
 #define JSON_OBJECT_STRING(obj, key) strdup(json_string_value(json_object_get(obj, key)))
 #define JSON_OBJECT_INTEGER(obj, key) (int)json_integer_value(json_object_get(obj, key))
@@ -18,5 +20,6 @@ size_t json_string_length(const json_t* string);
 #endif
 
 char *util_pronoun_get(gender g, pronoun_case c);
+boolean_t util_load_json_asset(char* path, void **target, size_t record_size, size_t record_count, object proto, size_t proto_size, boolean_t (*unpacker_cb)(void*, json_t*));
 
 #endif

@@ -22,15 +22,6 @@ void item_describe(void* self) {
 }
 
 boolean_t item_load(item_t** items) {
-  uint16_t i = 0;
-
-  assert(NULL != items);
-
-  for (i = 0; i < MAX_ITEMS; i++) {
-    items[i] = malloc(sizeof(item_t));
-    memset(items[i], 0, sizeof(item_t));
-    alloc_register(items[i]);
-  }
 
 /*
   for (i = 1; i < MAX_ITEMS; i++) {

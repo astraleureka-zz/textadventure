@@ -14,6 +14,10 @@ typedef struct {
   void (*move_action)(void* self, direction dir);                              /*+ func ptr - move object from one room to another (generally applies to player only) +*/
 } object;
 
+typedef struct {
+  object proto;
+} object_generic;
+
 int object_init(void* self);
 void object_destroy(void* self);
 void object_describe(void* self);

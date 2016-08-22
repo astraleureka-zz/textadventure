@@ -80,139 +80,87 @@ void mob_check(mob_t* mob) {
   printf("Enemy HP: %3d    ATK: %3d  DEF: %3d\n", mob->health, mob->strength, mob->defense);
 }
 
-/*+ loads all mob files in mob/ +*/
-boolean_t mob_load(mob_t** mobs,   /*+ pointer to empty mob list +*/
-                   item_t** items) /*+ pointer to item list used to create item copies inside mob structs +*/
-/*+ returns TRUE on success, FALSE on failure +*/
+/*+ loads data from json structure into mob structure +*/
+boolean_t mob_json_unpack(mob_t* mob,       /*+ target mob structure +*/
+                          json_t* json_mob) /*+ source json structure +*/
+/*+ returns TRUE if load was successful, FALSE otherwise +*/
 {
-  DIR* dh;
-  struct dirent* d;
-  char* path_tmp = malloc(MAX_STRLEN);
-  uint16_t i     = 0;
-  /* following vars used per loop */
-  size_t idx;
-  json_t* json_mob, *json_tmp, *json_array;
-  json_error_t json_error;
-  uint8_t mob_id;
+  json_t* json_array = NULL, *json_tmp = NULL;
+  uint8_t idx;
 
-  assert(NULL != mobs);
-  assert(NULL != path_tmp);
+  if (! mob || ! json_mob) return FALSE;
 
-  memset(mobs, 0, sizeof(mob_t*) * MAX_MOBS);
+  mob->name  = JSON_OBJECT_STRING(json_mob, "name");
+  mob->name2 = JSON_OBJECT_STRING(json_mob, "name2");
 
-  dh = opendir("mobs");
-  if (NULL == dh) {
-    perror("opendir mobs");
-    goto ERROR;
+  /* attack strings */
+  json_array            = JSON_OBJECT_VALUE(json_mob, "attack_strings");
+  mob->attack_strs  = malloc(json_array_size(json_array) * sizeof(char*));
+  json_array_foreach(json_array, idx, json_tmp) {
+    mob->attack_strs[idx] = malloc((json_string_length(json_tmp) + 1) * sizeof(char));
+    strcpy(mob->attack_strs[idx], json_string_value(json_tmp));
+    alloc_register(mob->attack_strs[idx]);
   }
+  mob->attack_str_count = json_array_size(json_array);
 
-  while (NULL != (d = readdir(dh))) {
-    if (*d->d_name == '.') continue; /* skip any lines starting with . */
+  /* defense strings */
+  json_array            = JSON_OBJECT_VALUE(json_mob, "defend_strings");
+  mob->defend_strs  = malloc(json_array_size(json_array) * sizeof(char*));
+  json_array_foreach(json_array, idx, json_tmp) {
+    mob->defend_strs[idx] = malloc((json_string_length(json_tmp) + 1) * sizeof(char));
+    strcpy(mob->defend_strs[idx], json_string_value(json_tmp));
+    alloc_register(mob->defend_strs[idx]);
+  }
+  mob->defend_str_count = json_array_size(json_array);
 
-    if ((strlen(d->d_name) + 5) > MAX_STRLEN) { /* 5 = "mobs/" */
-      printf("mobs/%s - path too long\n", d->d_name);
-      goto ERROR;
-    }
+  /* description strings */
+  json_array            = JSON_OBJECT_VALUE(json_mob, "describe_strings");
+  mob->desc_strs    = malloc(json_array_size(json_array) * sizeof(char*));
+  json_array_foreach(json_array, idx, json_tmp) {
+    mob->desc_strs[idx] = malloc((json_string_length(json_tmp) + 1) * sizeof(char));
+    strcpy(mob->desc_strs[idx], json_string_value(json_tmp));
+    alloc_register(mob->desc_strs[idx]);
+  }
+  mob->desc_str_count = json_array_size(json_array);
 
-    snprintf(path_tmp, MAX_STRLEN - 1, "mobs/%s", d->d_name);
-    if (NULL == (json_mob = json_load_file(path_tmp, 0, &json_error))) {
-      printf("%s - error line %d: %s\n", path_tmp, json_error.line, json_error.text);
-      goto ERROR;
-    }
+  mob->health       = JSON_OBJECT_INTEGER(json_mob, "health");
+  mob->skill        = JSON_OBJECT_INTEGER(json_mob, "skill");
+  mob->strength     = JSON_OBJECT_INTEGER(json_mob, "strength");
+  mob->defense      = JSON_OBJECT_INTEGER(json_mob, "defense");
+  mob->celerity     = JSON_OBJECT_INTEGER(json_mob, "celerity");
+  mob->intelligence = JSON_OBJECT_INTEGER(json_mob, "intelligence");
 
-    if (! json_is_object(json_mob)) {
-      printf("%s - json is not an object\n", path_tmp);
-      goto ERROR;
-    }
-
-    mob_id = JSON_OBJECT_INTEGER(json_mob, "id");
-    if (mobs[mob_id]) { /* XXX should probably have a dedicated bit for checking whether it exists or not */
-      printf("%s - duplicate mob id %d (already assigned to %s)\n", path_tmp, mob_id, mobs[mob_id]->_(class));
-      goto ERROR;
-    }
-
-    assert(mobs[mob_id]        = NEW(mob, path_tmp));
-    mobs[mob_id]->name         = JSON_OBJECT_STRING(json_mob, "name");
-    mobs[mob_id]->name2        = JSON_OBJECT_STRING(json_mob, "name2");
-
-    /* attack strings */
-    json_array            = JSON_OBJECT_VALUE(json_mob, "attack_strings");
-    mobs[mob_id]->attack_strs  = malloc(json_array_size(json_array) * sizeof(char*));
-    json_array_foreach(json_array, idx, json_tmp) {
-      mobs[mob_id]->attack_strs[idx] = malloc((json_string_length(json_tmp) + 1) * sizeof(char));
-      strcpy(mobs[mob_id]->attack_strs[idx], json_string_value(json_tmp));
-      alloc_register(mobs[mob_id]->attack_strs[idx]);
-    }
-    mobs[mob_id]->attack_str_count = json_array_size(json_array);
-
-    /* defense strings */
-    json_array            = JSON_OBJECT_VALUE(json_mob, "defend_strings");
-    mobs[mob_id]->defend_strs  = malloc(json_array_size(json_array) * sizeof(char*));
-    json_array_foreach(json_array, idx, json_tmp) {
-      mobs[mob_id]->defend_strs[idx] = malloc((json_string_length(json_tmp) + 1) * sizeof(char));
-      strcpy(mobs[mob_id]->defend_strs[idx], json_string_value(json_tmp));
-      alloc_register(mobs[mob_id]->defend_strs[idx]);
-    }
-    mobs[mob_id]->defend_str_count = json_array_size(json_array);
-
-    /* description strings */
-    json_array            = JSON_OBJECT_VALUE(json_mob, "describe_strings");
-    mobs[mob_id]->desc_strs    = malloc(json_array_size(json_array) * sizeof(char*));
-    json_array_foreach(json_array, idx, json_tmp) {
-      mobs[mob_id]->desc_strs[idx] = malloc((json_string_length(json_tmp) + 1) * sizeof(char));
-      strcpy(mobs[mob_id]->desc_strs[idx], json_string_value(json_tmp));
-      alloc_register(mobs[mob_id]->desc_strs[idx]);
-    }
-    mobs[mob_id]->desc_str_count = json_array_size(json_array);
-
-    mobs[mob_id]->health       = JSON_OBJECT_INTEGER(json_mob, "health");
-    mobs[mob_id]->skill        = JSON_OBJECT_INTEGER(json_mob, "skill");
-    mobs[mob_id]->strength     = JSON_OBJECT_INTEGER(json_mob, "strength");
-    mobs[mob_id]->defense      = JSON_OBJECT_INTEGER(json_mob, "defense");
-    mobs[mob_id]->celerity     = JSON_OBJECT_INTEGER(json_mob, "celerity");
-    mobs[mob_id]->intelligence = JSON_OBJECT_INTEGER(json_mob, "intelligence");
-
-    switch (JSON_OBJECT_INTEGER(json_mob, "gender")) {
-      case 0:
-        mobs[mob_id]->gender = GENDER_NONE;
-        break;
-      case 1:
-        mobs[mob_id]->gender = GENDER_FEMALE;
-        break;
-      case 2:
-        mobs[mob_id]->gender = GENDER_MALE;
-        break;
-      default:
-        printf("mob %d bad gender %d\n", i, JSON_OBJECT_INTEGER(json_mob, "gender"));
-        goto ERROR;
-    }
+  switch (JSON_OBJECT_INTEGER(json_mob, "gender")) {
+    case 0:
+      mob->gender = GENDER_NONE;
+      break;
+    case 1:
+      mob->gender = GENDER_FEMALE;
+      break;
+    case 2:
+      mob->gender = GENDER_MALE;
+      break;
+    default:
+      printf("mob %d bad gender %d\n", mob->id, JSON_OBJECT_INTEGER(json_mob, "gender"));
+      return FALSE;
+  }
 
 /* for item array
     json_array            = JSON_OBJECT_VALUE(json_mob, "describe_strings");
-    mobs[mob_id]->desc_strs    = malloc(json_array_size(json_array) * sizeof(char*));
+    mob->desc_strs    = malloc(json_array_size(json_array) * sizeof(char*));
     json_array_foreach(json_array, idx, json_tmp) {
-      mobs[mob_id]->desc_strs[idx] = malloc((json_string_length(json_tmp) + 1) * sizeof(char));
-      strcpy(mobs[mob_id]->desc_strs[idx], json_string_value(json_tmp));
-      alloc_register(mobs[mob_id]->desc_strs[idx]);
+      mob->desc_strs[idx] = malloc((json_string_length(json_tmp) + 1) * sizeof(char));
+      strcpy(mob->desc_strs[idx], json_string_value(json_tmp));
+      alloc_register(mob->desc_strs[idx]);
     }
 */
-    alloc_register(mobs[mob_id]->name);
-    alloc_register(mobs[mob_id]->name2);
-    alloc_register(mobs[mob_id]->attack_strs);
-    alloc_register(mobs[mob_id]->defend_strs);
-    alloc_register(mobs[mob_id]->desc_strs);
-    json_decref(json_mob);
-  }
+  alloc_register(mob->name);
+  alloc_register(mob->name2);
+  alloc_register(mob->attack_strs);
+  alloc_register(mob->defend_strs);
+  alloc_register(mob->desc_strs);
 
-  if (path_tmp) free(path_tmp);
-  if (dh) closedir(dh);
   return TRUE;
-
-  ERROR:
-  if (path_tmp) free(path_tmp);
-  if (dh) closedir(dh);
-  if (json_mob) json_decref(json_mob);
-  return FALSE;
 }
 
 /*+ performs a deep copy of a mob structure +*/

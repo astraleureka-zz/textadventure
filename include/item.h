@@ -34,6 +34,8 @@ struct item {
 
 typedef struct item item_t;
 
+extern object item_proto;
+
 int item_init(void* self);
 void item_describe(void* self);
 boolean_t item_load(item_t** items);
