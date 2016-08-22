@@ -2,6 +2,10 @@
 
 A simple text adventure engine in C, based on [Learn C The Hard Way, Exercise 19](http://c.learncodethehardway.org/book/ex19.html). 
 
+## Dependencies
+- libjansson 2.6 or newer
+- cxref (for building documentation, optional, disable by passing **DOCS=0** to make)
+
 ## Getting Started
 
 After checking out the source, just run 
@@ -10,7 +14,7 @@ After checking out the source, just run
 make
 ```
 
-to build the code. By default, documentation is enabled. To build without docs, pass **DOCS** to make:
+to build the code. By default, documentation is enabled. To build without docs, pass **DOCS=0** to make:
 ```
 make DOCS=0
 ```
