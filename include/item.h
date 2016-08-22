@@ -11,8 +11,7 @@ struct item_flags {
   boolean_t can_equip:1;
   boolean_t can_throw:1;
   boolean_t is_unique:1;
-  int :26;
-  boolean_t reserved:1;
+  int :27;
 };
 
 typedef struct item_flags item_flags_t;
@@ -27,7 +26,7 @@ struct item {
   uint8_t defense;
   uint8_t celerity;
   uint8_t intelligence;
-  uint8_t reserved[7];
+
   char* name;
   char* description;
 };
@@ -38,6 +37,6 @@ extern object item_proto;
 
 int item_init(void* self);
 void item_describe(void* self);
-boolean_t item_load(item_t** items);
+boolean_t item_json_unpack(void* item_ptr, json_t* json_item);
 
 #endif

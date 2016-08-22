@@ -21,26 +21,36 @@ void item_describe(void* self) {
   item_t* item = self;
 }
 
-boolean_t item_load(item_t** items) {
+/*+ loads data from json structure into item structure +*/
+boolean_t item_json_unpack(void* item_ptr,    /*+ target item structure +*/
+                           json_t* json_item) /*+ source json structure +*/
+/*+ returns TRUE upon success, or FALSE upon failure +*/
+{
+  item_t* item       = item_ptr;
+  if (! item || ! json_item) return FALSE;
 
-/*
-  for (i = 1; i < MAX_ITEMS; i++) {
-    if (! item_frecs[i]->item_id) continue;
-    assert(items[i]        = NEW(item, item_frecs[i]->name));
-    items[i]->name         = strdup(item_frecs[i]->name);
-    items[i]->description  = strdup(item_frecs[i]->description);
-    items[i]->health       = item_frecs[i]->health;
-    items[i]->skill        = item_frecs[i]->skill;
-    items[i]->strength     = item_frecs[i]->strength;
-    items[i]->defense      = item_frecs[i]->defense;
-    items[i]->celerity     = item_frecs[i]->celerity;
-    items[i]->intelligence = item_frecs[i]->intelligence;
-    memcpy(&items[i]->flags, &item_frecs[i]->flags, sizeof(item_flags)); /* has no member pointers* /
+  item->name         = JSON_OBJECT_STRING(json_item, "name");
+  item->description  = JSON_OBJECT_STRING(json_item, "description");
+  item->health       = JSON_OBJECT_INTEGER(json_item, "health");
+  item->skill        = JSON_OBJECT_INTEGER(json_item, "skill");
+  item->strength     = JSON_OBJECT_INTEGER(json_item, "strength");
+  item->defense      = JSON_OBJECT_INTEGER(json_item, "defense");
+  item->celerity     = JSON_OBJECT_INTEGER(json_item, "celerity");
+  item->intelligence = JSON_OBJECT_INTEGER(json_item, "intelligence");
 
-    alloc_register(items[i]->name);
-    alloc_register(items[i]->description);
+  item->flags.can_use   = JSON_OBJECT_BOOLEAN(json_item, "can_use");
+  item->flags.can_eat   = JSON_OBJECT_BOOLEAN(json_item, "can_eat");
+  item->flags.can_equip = JSON_OBJECT_BOOLEAN(json_item, "can_equip");
+  item->flags.can_throw = JSON_OBJECT_BOOLEAN(json_item, "can_throw");
+  item->flags.is_unique = JSON_OBJECT_BOOLEAN(json_item, "is_unique");
+
+  alloc_register(item->name);
+  alloc_register(item->description);
+
+  if (item->flags.can_eat && item->flags.can_equip) {
+    printf("%s: flag conflict: cannot set both can_eat and can_equip\n", item->_(class));
+    return FALSE;
   }
-*/
 
   return TRUE;
 }
