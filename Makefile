@@ -8,6 +8,10 @@ CFLAGS+=-D_POSIX_C_SOURCE=200809L -Wall -Wextra -Wno-unused-parameter -pedantic 
 LDFLAGS+=$(LIBS)
 GAME_OBJS=src/allocator.o src/oop.o src/game.o src/world.o src/mob.o src/player.o src/item.o src/combat.o src/util.o
 
+ifeq ($(DEBUG), 1)
+CFLAGS+=-DDEBUG -rdynamic
+endif
+
 all: game
 
 game: $(GAME_OBJS)
