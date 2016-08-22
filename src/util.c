@@ -136,9 +136,30 @@ boolean_t util_load_json_asset(char* path,                               /*+ pat
   return FALSE;
 }
 
+/*+ wrapper function to safely retrieve a string from a json_t object +*/
+inline char* util_json_object_string(json_t* obj, /*+ json node pointer +*/
+                                     char* key)   /*+ key to retrieve +*/
+/*+ returns the string corresponding to key, or "(null)" if the key doesn't exist +*/
+{
+  json_t* tmp = json_object_get(obj, key);
+  if (json_is_string(tmp)) return strdup(json_string_value(tmp));
+  return strdup("(null)");
+}
+
+/*+ wrapper function to safely retrieve a string from a json_t array +*/
+inline char* util_json_array_string(json_t* obj, /*+ json node pointer +*/
+                                    int idx)     /*+ key to retrieve +*/
+/*+ returns the string corresponding to idx, or "(null)" if the key doesn't exist +*/
+{
+  json_t* tmp = json_array_get(obj, idx);
+  if (json_is_string(tmp)) return strdup(json_string_value(tmp));
+  return strdup("(null)");
+}
+
 #if JANSSON_VERSION_HEX < 0x020700
 inline size_t json_string_length(const json_t* string) {
-  return strlen(json_string_value(string));
+  if (json_is_string(string)) return strlen(json_string_value(string));
+  return 0;
 }
 #endif
 
