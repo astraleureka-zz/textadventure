@@ -18,12 +18,10 @@ make DOCS=0
 Before you can run the game you will need to build the assets:
 
 ```
-./make_items.sh
-./make_rooms.sh
-./make_mobs.sh
+CURRENTLY NO TOOLING, HAND EDIT FILES IN items/ mobs/ rooms/ 
 ```
 
-Once the assets are created, simply run ./game. To modify the map, monsters or items, edit the respective make_*.sh file. 
+Once the assets are created, simply run ./game. To modify the map, monsters or items, edit the respective files in items/ mobs/ or rooms/. 
 The parameters for each option are described in the file and have working defaults to demonstrate how it works.
 
 ## Todo
