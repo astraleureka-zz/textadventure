@@ -2,7 +2,7 @@
 #define _TYPES_H 1
 
 #define FALSE 0
-#define TRUE !FALSE
+#define TRUE (!FALSE)
 typedef unsigned int boolean_t;
 
 #define MAX_NAMELEN 32

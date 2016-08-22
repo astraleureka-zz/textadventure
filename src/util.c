@@ -61,8 +61,8 @@ boolean_t util_frec_load(char* path,       /*+ string containing relative or abs
                          size_t frec_size) /*+ the size of an individual frec being read +*/
 /*+ returns TRUE if all frecs successfully load, FALSE otherwise +*/
 {
-  DIR *dh;
-  FILE *fh;
+  DIR *dh  = NULL;
+  FILE *fh = NULL;
   struct dirent *d;
   char *path_tmp = malloc(MAX_STRLEN), *err = malloc(MAX_STRLEN);
   void *frec = NULL;
