@@ -142,7 +142,9 @@ boolean_t mob_json_unpack(void* mob_ptr,    /*+ target mob structure +*/
       mob->gender = GENDER_MALE;
       break;
     default:
-      printf("mob %d bad gender %d\n", mob->id, JSON_OBJECT_INTEGER(json_mob, "gender"));
+#ifdef DEBUG
+      fprintf(stderr, "mob %d bad gender %d\n", mob->id, JSON_OBJECT_INTEGER(json_mob, "gender"));
+#endif
       return FALSE;
   }
 

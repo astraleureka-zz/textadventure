@@ -48,7 +48,9 @@ boolean_t item_json_unpack(void* item_ptr,    /*+ target item structure +*/
   alloc_register(item->description);
 
   if (item->flags.can_eat && item->flags.can_equip) {
-    printf("%s: flag conflict: cannot set both can_eat and can_equip\n", item->_(class));
+#ifdef DEBUG
+    fprintf(stderr, "%s: flag conflict: cannot set both can_eat and can_equip\n", item->_(class));
+#endif
     return FALSE;
   }
 

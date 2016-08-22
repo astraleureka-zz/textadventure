@@ -59,7 +59,6 @@ void __backtrace_and_die() {
 void __backtrace() {
 # ifdef __GLIBC__
   void* trace[255];
-  char** messages = NULL;
   const int calls = backtrace(trace, sizeof(trace) / sizeof(void*));
 
   backtrace_symbols_fd(trace, calls, 1);

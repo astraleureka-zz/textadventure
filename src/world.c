@@ -90,7 +90,9 @@ boolean_t room_linkage_create(room_t** rooms, /*+ list of rooms to link +*/
       alloc_register(rooms[i]->mob);
     }
     else if (mob_id > 0) {
-      printf("%s: mob_id %d does not exist\n", rooms[i]->_(class), mob_id);
+#ifdef DEBUG
+      fprintf(stderr, "%s: mob_id %d does not exist\n", rooms[i]->_(class), mob_id);
+#endif
       return FALSE;
     }
 
@@ -101,28 +103,36 @@ boolean_t room_linkage_create(room_t** rooms, /*+ list of rooms to link +*/
 
     if (north_id && rooms[north_id]) {
       if (rooms[north_id]->south_id != i) {
-        printf("room %d north_id %d does not correspond room %d south_id %d\n", i, north_id, north_id, rooms[north_id]->south_id);
+#ifdef DEBUG
+        fprintf(stderr, "room %d north_id %d does not correspond room %d south_id %d\n", i, north_id, north_id, rooms[north_id]->south_id);
+#endif
         return FALSE;
       }
       rooms[i]->north = rooms[north_id];
     }
     if (south_id && rooms[south_id]) {
       if (rooms[south_id]->north_id != i) {
-        printf("room %d south_id %d does not correspond room %d north_id %d\n", i, south_id, south_id, rooms[south_id]->north_id);
+#ifdef DEBUG
+        fprintf(stderr, "room %d south_id %d does not correspond room %d north_id %d\n", i, south_id, south_id, rooms[south_id]->north_id);
+#endif
         return FALSE;
       }
       rooms[i]->south = rooms[south_id];
     }
     if (east_id && rooms[east_id]) {
       if (rooms[east_id]->west_id != i) {
-        printf("room %d east_id %d does not correspond room %d west_id %d\n", 1, east_id, east_id, rooms[east_id]->west_id);
+#ifdef DEBUG
+        fprintf(stderr, "room %d east_id %d does not correspond room %d west_id %d\n", 1, east_id, east_id, rooms[east_id]->west_id);
+#endif
         return FALSE;
       }
       rooms[i]->east = rooms[east_id];
     }
     if (west_id && rooms[west_id]) {
       if (rooms[west_id]->east_id != i) {
-        printf("room %d west_id %d does not correspond room %d east_id %d\n", 1, west_id, west_id, rooms[west_id]->east_id);
+#ifdef DEBUG
+        fprintf(stderr, "room %d west_id %d does not correspond room %d east_id %d\n", 1, west_id, west_id, rooms[west_id]->east_id);
+#endif
         return FALSE;
       }
       rooms[i]->west = rooms[west_id];

@@ -9,7 +9,9 @@
 
 /*+ default function for object creation +*/
 void object_describe(void* self) {
-  printf("cannot describe a root object\n");
+#ifdef DEBUG
+  fprintf(stderr, "cannot describe a root object\n");
+#endif
 }
 
 /*+ default function for object creation +*/
@@ -19,19 +21,25 @@ int object_init(void* self) {
 
 /*+ default function for object creation +*/
 boolean_t object_take_action(void* self, void* target, boolean_t player_action) {
-  printf("cannot take action as a root object\n");
+#ifdef DEBUG
+  fprintf(stderr, "cannot take action as a root object\n");
+#endif
   return 0;
 }
 
 /*+ default function for object creation +*/
 int object_recv_action(void* self, uint8_t parameter) {
-  printf("cannot recv action as a root object\n");
+#ifdef DEBUG
+  fprintf(stderr, "cannot recv action as a root object\n");
+#endif
   return 0;
 }
 
 /*+ default function for object creation +*/
 void object_move_action(void* self, direction dir) {
-  printf("cannot move action as a root object\n");
+#ifdef DEBUG
+  fprintf(stderr, "cannot move action as a root object\n");
+#endif
 }
 
 /*+ creates a new object pointer from the specified prototype object.  +*/
@@ -63,7 +71,10 @@ void* object_new(size_t size,  /*+ size of the prototype object +*/
 
   /* after creating the new object, we call its initializer. if the initializer returns FALSE, the object is considered to be uninitialized and we discard it */
   if (! new->init(new)) {
-    printf("object_new(%u, object) failed\n", size);
+#ifdef DEBUG
+    fprintf(stderr, "object_new(%u, %p, %s) failed\n", size, (void*) &proto, class);
+    __backtrace();
+#endif
     free(new->class);
     free(new);
     return NULL;

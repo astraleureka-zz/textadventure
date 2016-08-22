@@ -17,7 +17,7 @@ uint8_t combat_damage_calculate(uint8_t str, /*+ Strength (of actor) +*/
   }
   uint8_t damage   = (str_base / def_base);
 #ifdef DEBUG
-  printf("combat_damage_calculate(%d, %d): %d, %d == %d\n", str, def, str_base, def_base, damage);
+  fprintf(stderr, "combat_damage_calculate(%d, %d): %d, %d == %d\n", str, def, str_base, def_base, damage);
 #endif
   return damage;
 }

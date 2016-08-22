@@ -92,31 +92,31 @@ boolean_t util_load_json_asset(char* path,                               /*+ pat
     if (*d->d_name == '.') continue; /* skip any lines starting with . */
 
     if ((strlen(d->d_name) + path_len) > MAX_STRLEN) {
-      printf("%s/%s - path too long\n", path, d->d_name);
+      snprintf(error, MAX_STRLEN - 1, "%s/%s - path too long\n", path, d->d_name);
       goto ERROR;
     }
 
     snprintf(path_tmp, MAX_STRLEN - 1, "%s/%s", path, d->d_name);
     if (NULL == (json_obj = json_load_file(path_tmp, 0, &json_error))) {
-      printf("%s - error line %d: %s\n", path_tmp, json_error.line, json_error.text);
+      snprintf(error, MAX_STRLEN - 1, "%s - error line %d: %s\n", path_tmp, json_error.line, json_error.text);
       goto ERROR;
     }
 
     if (! json_is_object(json_obj)) {
-      printf("%s - json is not an object\n", path_tmp);
+      snprintf(error, MAX_STRLEN - 1, "%s - json is not an object\n", path_tmp);
       goto ERROR;
     }
 
     obj_id = JSON_OBJECT_INTEGER(json_obj, "id");
     if (target[obj_id]) {
       obj_gen = (object_generic*)target[obj_id];
-      printf("%s - duplicate object id %d (already assigned to %s)\n", path_tmp, obj_id, obj_gen->proto.class);
+      snprintf(error, MAX_STRLEN - 1, "%s - duplicate object id %d (already assigned to %s)\n", path_tmp, obj_id, obj_gen->proto.class);
       goto ERROR;
     }
 
     assert(target[obj_id] = object_new(proto_size, proto, path_tmp));
     if (! unpacker_cb(target[obj_id], json_obj)) {
-      printf("%s - unable to unpack file, check syntax or build with debugging\n", path_tmp);
+      snprintf(error, MAX_STRLEN - 1, "%s - unable to unpack file, check syntax or build with debugging\n", path_tmp);
       goto ERROR;
     }
 
@@ -130,7 +130,12 @@ boolean_t util_load_json_asset(char* path,                               /*+ pat
 
   PERROR:
   perror(error);
+  goto CLEANUP;
+
   ERROR:
+  fprintf(stderr, error);
+
+  CLEANUP:
   if (path_tmp) free(path_tmp);
   if (error) free(error);
   if (dh) closedir(dh);
