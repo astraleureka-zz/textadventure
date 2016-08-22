@@ -36,11 +36,15 @@ int game_init(void* self) /*+ pointer to called object +*/
 /*+ returns 1 upon success, 0 upon failure +*/
 {
   char* error;
-  room_t** rooms      = malloc(sizeof(room_t*) * MAX_ROOMS);
-  mob_t** mobs        = malloc(sizeof(mob_t*) * MAX_MOBS);
   item_t** items      = malloc(sizeof(item_t*) * MAX_ITEMS);
+  mob_t** mobs        = malloc(sizeof(mob_t*) * MAX_MOBS);
+  room_t** rooms      = malloc(sizeof(room_t*) * MAX_ROOMS);
   game_t* game        = self;
   player_t* playerobj = NULL;
+
+  alloc_register(items);
+  alloc_register(mobs);
+  alloc_register(rooms);
 
   /* explicitly cast the list pointers to void** to silence an irrelevant warning about incompatible types */
   if (! util_load_json_asset("items", (void**) items, sizeof(item_t*), MAX_ITEMS, item_proto, sizeof(item_t), item_json_unpack)) {
