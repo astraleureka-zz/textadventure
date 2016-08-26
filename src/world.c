@@ -122,7 +122,7 @@ boolean_t room_linkage_create(room_t** rooms, /*+ list of rooms to link +*/
     if (east_id && rooms[east_id]) {
       if (rooms[east_id]->west_id != i) {
 #ifdef DEBUG
-        fprintf(stderr, "room %d east_id %d does not correspond room %d west_id %d\n", 1, east_id, east_id, rooms[east_id]->west_id);
+        fprintf(stderr, "room %d east_id %d does not correspond room %d west_id %d\n", i, east_id, east_id, rooms[east_id]->west_id);
 #endif
         return FALSE;
       }
@@ -131,7 +131,7 @@ boolean_t room_linkage_create(room_t** rooms, /*+ list of rooms to link +*/
     if (west_id && rooms[west_id]) {
       if (rooms[west_id]->east_id != i) {
 #ifdef DEBUG
-        fprintf(stderr, "room %d west_id %d does not correspond room %d east_id %d\n", 1, west_id, west_id, rooms[west_id]->east_id);
+        fprintf(stderr, "room %d west_id %d does not correspond room %d east_id %d\n", i, west_id, west_id, rooms[west_id]->east_id);
 #endif
         return FALSE;
       }
