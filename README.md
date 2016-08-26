@@ -19,11 +19,20 @@ to build the code. By default, documentation is enabled. To build without docs, 
 make DOCS=0
 ```
 
-Before you can run the game you will need to build the assets:
+## Test map layout
 
-```
-CURRENTLY NO TOOLING, HAND EDIT FILES IN items/ mobs/ rooms/ 
-```
+|    | 25 | 24 | 23 | 22 |    |    |    |
+|    | 26 |    |    | 21 | 40 | 39 |    |
+|    | 27 |    | 19 | 20 |    | 38 |    |
+|    | 28 |    | 18 |    |    | 37 |    |
+|    | 29 |    | 13 |    |    | 36 |    |
+| 16 | 15 | 14 | 12 |    |    | 35 | 34 |
+| 17 |    |    | 11 |    |    |    | 33 |
+|    |    |    | 6  | 7  | 8  |    | 32 |
+|    |    |    | 5  |    | 9  | 30 | 31 |
+|    |    |    | 4  | 3  | 10 |    |    |
+|    |    |    |    | 2  |    |    |    |
+|    |    |    |    | 1  |    |    |    |
 
 Once the assets are created, simply run ./game. To modify the map, monsters or items, edit the respective files in items/ mobs/ or rooms/. 
 The parameters for each option are described in the file and have working defaults to demonstrate how it works.

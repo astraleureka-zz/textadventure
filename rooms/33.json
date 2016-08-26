@@ -1,0 +1,10 @@
+{
+  "id": 33,
+  "name": "room 33",
+  "description": "room 33",
+  "mob_id": 0,
+  "north": 34,
+  "south": 32,
+  "east": 0,
+  "west": 0
+}
